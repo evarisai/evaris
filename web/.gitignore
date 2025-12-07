@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+*.tar.gz
+.local/
+.env.prod
+.env
+.env.local
+
+# TanStack Start
+.output
+.vinxi
+src/routeTree.gen.ts
+app.config.timestamp_*.js
+

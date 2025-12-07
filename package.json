@@ -1,0 +1,5 @@
+{
+  "name": "evarisai",
+  "private": true,
+  "workspaces": ["web", "web/packages/*", "sdk/typescript"]
+}

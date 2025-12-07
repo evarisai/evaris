@@ -1,0 +1,24 @@
+{
+	"include": ["src/**/*", "shared/**/*"],
+	"exclude": ["node_modules", "build", "dist", ".output", ".vinxi", "**/*.test.ts"],
+	"compilerOptions": {
+		"incremental": true,
+		"tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
+		"noEmit": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"strict": true,
+		"lib": ["esnext", "dom", "dom.iterable"],
+		"jsx": "react-jsx",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"allowImportingTsExtensions": true,
+		"moduleResolution": "bundler",
+		"baseUrl": ".",
+		"types": ["node", "vite/client"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@shared/*": ["./shared/*"]
+		}
+	}
+}
