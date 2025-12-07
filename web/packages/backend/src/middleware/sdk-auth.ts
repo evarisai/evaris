@@ -6,7 +6,7 @@
  */
 
 import type { Context, MiddlewareHandler } from "hono"
-import { createHash } from "crypto"
+import { createHash } from "node:crypto"
 import { prisma } from "../lib/db"
 
 export interface SdkAuthContext {
@@ -127,6 +127,9 @@ export const sdkAuth: MiddlewareHandler<{
 
 /**
  * Map API key scope to internal permissions
+ *
+ * Security: Unknown scopes default to read-only (fail closed).
+ * This prevents accidental write access from corrupted or unexpected scope values.
  */
 function mapApiKeyPermissions(scope: string): string[] {
 	switch (scope) {
@@ -137,7 +140,9 @@ function mapApiKeyPermissions(scope: string): string[] {
 		case "ADMIN":
 			return ["read", "write", "admin"]
 		default:
-			return ["read", "write"]
+			// Security: Fail closed - unknown scopes get minimal permissions
+			console.warn(`[SDK Auth] Unknown API key scope: ${scope}, defaulting to read-only`)
+			return ["read"]
 	}
 }
 

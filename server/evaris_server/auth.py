@@ -1,15 +1,27 @@
-"""Internal authentication middleware."""
+"""Internal authentication middleware.
 
+Security considerations:
+- JWT tokens are validated with strict expiration enforcement
+- Error messages are generic to prevent information disclosure
+- Algorithm is whitelisted to prevent algorithm confusion attacks
+"""
+
+import logging
 from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
-from jose import JWTError, jwt
+from jose import ExpiredSignatureError, JWTError, jwt
 from pydantic import BaseModel
 
 from evaris_server.config import Settings, get_settings
 
+logger = logging.getLogger(__name__)
+
 AUTH_HEADERS = {"WWW-Authenticate": "Bearer"}
+
+# Security: Whitelist allowed JWT algorithms to prevent algorithm confusion attacks
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
 
 
 class InternalAuthContext(BaseModel):
@@ -24,6 +36,10 @@ class InternalAuthContext(BaseModel):
 
 
 def _auth_error(detail: str) -> HTTPException:
+    """Create authentication error response.
+
+    Security: Use generic messages to prevent information disclosure.
+    """
     return HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=detail,
@@ -32,35 +48,54 @@ def _auth_error(detail: str) -> HTTPException:
 
 
 def decode_internal_token(token: str, settings: Settings) -> InternalAuthContext:
-    """Decode and validate the internal JWT token from evaris-web."""
+    """Decode and validate the internal JWT token from evaris-web.
+
+    Security:
+    - Enforces expiration (exp claim is required)
+    - Uses algorithm whitelist
+    - Returns generic error messages
+    """
+    # Validate algorithm is allowed
+    if settings.internal_jwt_algorithm not in ALLOWED_ALGORITHMS:
+        logger.error(f"Unsupported JWT algorithm configured: {settings.internal_jwt_algorithm}")
+        raise _auth_error("Authentication configuration error")
+
     try:
+        # Use jose library's built-in validation with strict options
         payload = jwt.decode(
             token,
             settings.internal_jwt_secret,
             algorithms=[settings.internal_jwt_algorithm],
+            options={
+                "verify_exp": True,  # Verify expiration
+                "require_exp": True,  # Require exp claim
+                "verify_iat": True,  # Verify issued-at
+            },
         )
+    except ExpiredSignatureError:
+        # Specific handling for expired tokens (common case)
+        raise _auth_error("Token has expired")
     except JWTError as e:
-        raise _auth_error(f"Token decode failed: {str(e)}")
+        # Log the actual error for debugging, return generic message
+        logger.warning(f"JWT validation failed: {str(e)}")
+        raise _auth_error("Invalid authentication token")
 
+    # Validate required claims
     organization_id = payload.get("organization_id")
     if not organization_id:
-        raise _auth_error("Token missing required 'organization_id' claim")
+        raise _auth_error("Invalid authentication token")
 
     project_id = payload.get("project_id")
     if not project_id:
-        raise _auth_error("Token missing required 'project_id' claim")
+        raise _auth_error("Invalid authentication token")
 
     user_id = payload.get("user_id")
     if not user_id:
-        raise _auth_error("Token missing required 'user_id' claim")
+        raise _auth_error("Invalid authentication token")
 
     exp = payload.get("exp")
-    if exp:
-        exp_dt = datetime.fromtimestamp(exp, tz=timezone.utc)
-        if exp_dt < datetime.now(timezone.utc):
-            raise _auth_error("Token has expired")
-
     iat = payload.get("iat")
+
     return InternalAuthContext(
         organization_id=organization_id,
         project_id=project_id,

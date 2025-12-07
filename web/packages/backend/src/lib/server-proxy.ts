@@ -25,10 +25,27 @@ interface InternalTokenPayload {
 
 /**
  * Configuration for the server proxy
+ *
+ * Security: INTERNAL_JWT_SECRET must be set in production.
+ * The default is only for local development.
  */
+function getJwtSecret(): string {
+	const secret = process.env.INTERNAL_JWT_SECRET
+	if (!secret) {
+		if (process.env.NODE_ENV === "production") {
+			throw new Error("CRITICAL: INTERNAL_JWT_SECRET must be set in production")
+		}
+		console.warn(
+			"[Server Proxy] WARNING: Using insecure default JWT secret - do not use in production"
+		)
+		return "dev-secret-change-in-production"
+	}
+	return secret
+}
+
 export const proxyConfig = {
 	serverUrl: process.env.EVARIS_SERVER_URL || "http://localhost:8080",
-	jwtSecret: process.env.INTERNAL_JWT_SECRET || "dev-secret-change-in-production",
+	jwtSecret: getJwtSecret(),
 	jwtAlgorithm: "HS256" as const,
 	tokenExpirySeconds: 300, // 5 minutes
 }
@@ -54,7 +71,19 @@ export function createInternalToken(context: ApiKeyContext): string {
 }
 
 /**
+ * Error response from server proxy
+ */
+export interface ProxyErrorResponse {
+	error: string
+	message: string
+	details?: string
+}
+
+/**
  * Forward a request to the internal evaris-server
+ *
+ * Security: Properly handles all error cases to prevent information leakage
+ * and provide meaningful feedback to clients.
  */
 export async function forwardToServer<T>(
 	path: string,
@@ -63,25 +92,74 @@ export async function forwardToServer<T>(
 	body?: unknown
 ): Promise<{ data: T; status: number }> {
 	const internalToken = createInternalToken(context)
+	const url = `${proxyConfig.serverUrl}${path}`
 
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 		"X-Context-Token": internalToken,
 	}
 
-	const url = `${proxyConfig.serverUrl}${path}`
+	try {
+		const response = await fetch(url, {
+			method,
+			headers,
+			body: body ? JSON.stringify(body) : undefined,
+		})
 
-	const response = await fetch(url, {
-		method,
-		headers,
-		body: body ? JSON.stringify(body) : undefined,
-	})
+		// Try to parse JSON response
+		let data: T
+		try {
+			data = (await response.json()) as T
+		} catch {
+			// Server returned non-JSON response (likely HTML error page)
+			console.error(`[Server Proxy] Invalid JSON response: ${method} ${path}`, {
+				status: response.status,
+				statusText: response.statusText,
+			})
 
-	const data = (await response.json()) as T
+			// Return error response
+			const errorData: ProxyErrorResponse = {
+				error: "Server Error",
+				message: `Evaluation server returned invalid response (status: ${response.status})`,
+			}
+			return { data: errorData as T, status: response.status || 502 }
+		}
 
-	return {
-		data,
-		status: response.status,
+		// Log non-OK responses for debugging
+		if (!response.ok) {
+			console.error(`[Server Proxy] Request failed: ${method} ${path}`, {
+				status: response.status,
+				data,
+			})
+		}
+
+		return { data, status: response.status }
+	} catch (error) {
+		// Handle network errors (connection refused, DNS failure, timeout, etc.)
+		const errorMessage = error instanceof Error ? error.message : String(error)
+		console.error(`[Server Proxy] Network error: ${method} ${path}`, {
+			error: errorMessage,
+			url,
+		})
+
+		// Determine error type and return appropriate response
+		let userMessage = "Unable to reach evaluation server. Please try again later."
+		if (errorMessage.includes("ECONNREFUSED")) {
+			userMessage = "Evaluation server is unavailable. Please try again later."
+		} else if (errorMessage.includes("ETIMEDOUT") || errorMessage.includes("timeout")) {
+			userMessage = "Request to evaluation server timed out. Please try again."
+		} else if (errorMessage.includes("ENOTFOUND")) {
+			userMessage = "Evaluation server could not be found. Please contact support."
+		}
+
+		const errorData: ProxyErrorResponse = {
+			error: "Service Unavailable",
+			message: userMessage,
+			// Only include details in non-production for debugging
+			details: process.env.NODE_ENV !== "production" ? errorMessage : undefined,
+		}
+
+		return { data: errorData as T, status: 503 }
 	}
 }
 

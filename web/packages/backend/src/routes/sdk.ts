@@ -9,6 +9,7 @@ import { Hono } from "hono"
 import { zValidator } from "@hono/zod-validator"
 import { z } from "zod"
 import { sdkAuth, getSdkContext } from "../middleware/sdk-auth"
+import { sdkRateLimiter } from "../middleware/rate-limiter"
 import { forwardToServer, transformAssessRequest } from "../lib/server-proxy"
 
 // Types for server responses
@@ -59,6 +60,9 @@ interface LogResponse {
 
 // Create SDK routes with auth middleware applied
 const sdkRoutes = new Hono()
+
+// Apply rate limiting before auth (to protect against brute force)
+sdkRoutes.use("*", sdkRateLimiter)
 
 // Apply SDK auth to all routes
 sdkRoutes.use("*", sdkAuth)

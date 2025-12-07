@@ -98,6 +98,95 @@ function getVerificationEmailHtml(userName: string, verificationUrl: string): st
   `.trim()
 }
 
+// Password reset email template
+function getPasswordResetEmailHtml(userName: string, resetUrl: string): string {
+	return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset your password</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="min-height: 100vh;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 480px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>
+                    <!-- Logo placeholder -->
+                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                      <span style="color: white; font-weight: bold; font-size: 20px;">E</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 32px 40px;">
+              <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 600; color: #18181b; line-height: 1.3;">
+                Reset your password
+              </h1>
+              <p style="margin: 0 0 24px; font-size: 15px; color: #71717a; line-height: 1.6;">
+                Hi ${userName || "there"},<br><br>
+                We received a request to reset your password. Click the button below to create a new password.
+              </p>
+
+              <!-- Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>
+                    <a href="${resetUrl}"
+                       style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.4);">
+                      Reset Password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 24px 0 0; font-size: 13px; color: #a1a1aa; line-height: 1.6;">
+                This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; border-top: 1px solid #f4f4f5;">
+              <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
+                If the button doesn't work, copy and paste this link into your browser:
+              </p>
+              <p style="margin: 8px 0 0; font-size: 12px; color: #6366f1; word-break: break-all;">
+                ${resetUrl}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Brand footer -->
+          <tr>
+            <td style="padding: 0 40px 32px;">
+              <p style="margin: 0; font-size: 12px; color: #d4d4d8; text-align: center;">
+                Evaris - AI Evaluation Platform
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim()
+}
+
 // Send email via Resend
 async function sendEmail(params: { to: string; subject: string; html: string }): Promise<void> {
 	if (!resend) {
@@ -219,6 +308,23 @@ export const auth = betterAuth({
 		enabled: true,
 		autoSignIn: false, // Require email verification
 		requireEmailVerification: true,
+		// Password reset configuration
+		sendResetPassword: async ({ user, url }) => {
+			console.log(`[Password Reset] Sending to: ${user.email}`)
+
+			const emailHtml = getPasswordResetEmailHtml(user.name, url)
+
+			// Send email (non-blocking to prevent timing attacks)
+			void sendEmail({
+				to: user.email,
+				subject: "Reset your password - Evaris",
+				html: emailHtml,
+			}).catch((err) => {
+				console.error("[Password Reset] Failed to send:", err)
+			})
+		},
+		// Token expiry for password reset (1 hour)
+		resetPasswordTokenExpiresIn: 60 * 60,
 	},
 	emailVerification: {
 		sendOnSignUp: true,

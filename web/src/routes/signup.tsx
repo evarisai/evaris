@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordStrengthMeter, validatePassword } from "@/components/ui/password-strength-meter"
 import { signIn, signUp } from "@/lib/auth-client"
 
 // OAuth Button Component
@@ -230,8 +231,10 @@ function SignupPage() {
 			return
 		}
 
-		if (password.length < 8) {
-			setError("Password must be at least 8 characters")
+		// Validate password against strong security requirements
+		const passwordValidation = validatePassword(password)
+		if (!passwordValidation.isValid) {
+			setError(passwordValidation.errors[0] || "Password does not meet security requirements")
 			setIsLoading(false)
 			return
 		}
@@ -369,40 +372,42 @@ function SignupPage() {
 										className="h-11 bg-background/50"
 									/>
 								</div>
-								<div
-									className="grid grid-cols-2 gap-4 animate-fade-in-up"
-									style={{ animationDelay: "400ms" }}
-								>
-									<div className="space-y-2">
-										<Label htmlFor="password" className="text-sm font-medium">
-											Password
-										</Label>
-										<Input
-											id="password"
-											type="password"
-											placeholder="Create password"
-											value={password}
-											onChange={(e) => setPassword(e.target.value)}
-											required
-											disabled={isLoading}
-											className="h-11 bg-background/50"
-										/>
+								<div className="space-y-3 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+									<div className="grid grid-cols-2 gap-4">
+										<div className="space-y-2">
+											<Label htmlFor="password" className="text-sm font-medium">
+												Password
+											</Label>
+											<Input
+												id="password"
+												type="password"
+												placeholder="Create password"
+												value={password}
+												onChange={(e) => setPassword(e.target.value)}
+												required
+												disabled={isLoading}
+												className="h-11 bg-background/50"
+											/>
+										</div>
+										<div className="space-y-2">
+											<Label htmlFor="confirmPassword" className="text-sm font-medium">
+												Confirm
+											</Label>
+											<Input
+												id="confirmPassword"
+												type="password"
+												placeholder="Confirm password"
+												value={confirmPassword}
+												onChange={(e) => setConfirmPassword(e.target.value)}
+												required
+												disabled={isLoading}
+												className="h-11 bg-background/50"
+											/>
+										</div>
 									</div>
-									<div className="space-y-2">
-										<Label htmlFor="confirmPassword" className="text-sm font-medium">
-											Confirm
-										</Label>
-										<Input
-											id="confirmPassword"
-											type="password"
-											placeholder="Confirm password"
-											value={confirmPassword}
-											onChange={(e) => setConfirmPassword(e.target.value)}
-											required
-											disabled={isLoading}
-											className="h-11 bg-background/50"
-										/>
-									</div>
+
+									{/* Password strength meter with real-time feedback */}
+									<PasswordStrengthMeter password={password} />
 								</div>
 							</CardContent>
 							<CardFooter className="flex flex-col space-y-4 pt-2">

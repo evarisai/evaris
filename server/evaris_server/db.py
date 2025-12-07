@@ -1,5 +1,6 @@
 """Database client with Prisma and RLS context management."""
 
+import re
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -7,6 +8,10 @@ from prisma import Prisma
 from prisma.engine.errors import EngineConnectionError
 
 from evaris_server.config import Settings, get_settings
+
+# CUID format: starts with 'c' followed by 24 lowercase alphanumeric chars
+# This is the standard format used by Prisma's @default(cuid())
+CUID_PATTERN = re.compile(r"^c[a-z0-9]{24}$")
 
 
 class Database:
@@ -52,14 +57,24 @@ class Database:
         organization_id: str,
         is_admin: bool = False,
     ) -> None:
-        """Set RLS context variables for the current session."""
-        # Validate organization_id format to prevent SQL injection
-        # Expected format: cuid (25 chars, alphanumeric)
-        if not organization_id or not organization_id.isalnum() or len(organization_id) > 30:
-            raise ValueError(f"Invalid organization_id format: {organization_id}")
-        await self.client.execute_raw(f"SET app.current_organization_id = '{organization_id}'")
+        """Set RLS context variables for the current session.
+
+        Security: Uses parameterized queries via set_config() to prevent SQL injection.
+        The organization_id is also validated against strict CUID format.
+        """
+        # Strict CUID validation to prevent SQL injection
+        # CUID format: 'c' + 24 lowercase alphanumeric chars (total 25 chars)
+        if not organization_id or not CUID_PATTERN.match(organization_id):
+            raise ValueError("Invalid organization_id format: must be a valid CUID")
+
+        # Use parameterized query via set_config() instead of string interpolation
+        # set_config(setting_name, new_value, is_local) - is_local=false makes it session-wide
+        await self.client.execute_raw(
+            "SELECT set_config('app.current_organization_id', $1, false)",
+            organization_id,
+        )
         if is_admin:
-            await self.client.execute_raw("SET app.is_admin = 'true'")
+            await self.client.execute_raw("SELECT set_config('app.is_admin', 'true', false)")
 
     async def _reset_rls_context(self) -> None:
         """Reset RLS context variables."""

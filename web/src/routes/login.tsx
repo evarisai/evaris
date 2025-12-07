@@ -207,9 +207,17 @@ function LoginPage() {
 								/>
 							</div>
 							<div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "350ms" }}>
-								<Label htmlFor="password" className="text-sm font-medium">
-									Password
-								</Label>
+								<div className="flex items-center justify-between">
+									<Label htmlFor="password" className="text-sm font-medium">
+										Password
+									</Label>
+									<Link
+										to="/forgot-password"
+										className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+									>
+										Forgot password?
+									</Link>
+								</div>
 								<Input
 									id="password"
 									type="password"

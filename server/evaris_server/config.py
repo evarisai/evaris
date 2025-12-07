@@ -1,9 +1,13 @@
 """Configuration for evaris-server."""
 
+import logging
 from functools import lru_cache
 from typing import Optional
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -26,8 +30,25 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://localhost:5432/evaris"
 
     # Internal authentication (from evaris-web)
+    # Security: Must be changed from default in production
     internal_jwt_secret: str = "change-me-in-production"
     internal_jwt_algorithm: str = "HS256"
+
+    @model_validator(mode="after")
+    def validate_security_settings(self) -> "Settings":
+        """Validate security-critical settings."""
+        # Enforce JWT secret in production
+        if self.environment == "production":
+            if self.internal_jwt_secret == "change-me-in-production":
+                raise ValueError(
+                    "CRITICAL: internal_jwt_secret must be set in production. "
+                    "Set INTERNAL_JWT_SECRET environment variable."
+                )
+        elif self.internal_jwt_secret == "change-me-in-production":
+            logger.warning(
+                "Using insecure default JWT secret. " "Set INTERNAL_JWT_SECRET for production."
+            )
+        return self
 
     # LLM Provider for Judge (Evaris's API keys)
     openrouter_api_key: Optional[str] = None
