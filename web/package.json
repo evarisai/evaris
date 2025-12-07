@@ -4,11 +4,12 @@
 	"type": "module",
 	"license": "MIT",
 	"scripts": {
+		"postinstall": "prisma generate --schema=../shared/prisma/schema.prisma --generator client_js",
 		"dev": "vite",
 		"dev:backend": "pnpm --filter @evarisai/backend dev",
 		"dev:worker": "pnpm --filter @evarisai/backend worker:dev",
 		"dev:all": "concurrently \"pnpm dev\" \"pnpm dev:backend\" \"pnpm dev:worker\"",
-		"build": "vite build",
+		"build": "npx prisma generate --schema=../shared/prisma/schema.prisma --generator client_js && vite build",
 		"build:backend": "pnpm --filter @evarisai/backend build",
 		"build:all": "pnpm build && pnpm build:backend",
 		"start": "node .output/server/index.mjs",
@@ -26,9 +27,9 @@
 		"db:studio": "prisma studio --schema=../shared/prisma/schema.prisma"
 	},
 	"dependencies": {
-		"@prisma/client": "^6.1.0",
 		"@hookform/resolvers": "^3.10.0",
 		"@jridgewell/trace-mapping": "^0.3.25",
+		"@prisma/client": "^6.1.0",
 		"@radix-ui/react-accordion": "^1.2.4",
 		"@radix-ui/react-alert-dialog": "^1.1.7",
 		"@radix-ui/react-aspect-ratio": "^1.1.3",
@@ -66,6 +67,7 @@
 		"@trpc/client": "^11.0.0-rc.660",
 		"@trpc/react-query": "^11.0.0-rc.660",
 		"@trpc/server": "^11.0.0-rc.660",
+		"@vercel/speed-insights": "^1.3.1",
 		"better-auth": "^1.4.3",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -77,6 +79,7 @@
 		"lucide-react": "^0.453.0",
 		"nanoid": "^5.1.6",
 		"next-themes": "^0.4.6",
+		"nitro": "3.0.1-alpha.1",
 		"react": "^18.3.1",
 		"react-day-picker": "^8.10.1",
 		"react-dom": "^18.3.1",
@@ -104,7 +107,7 @@
 		"concurrently": "^9.2.1",
 		"esbuild": "^0.25.0",
 		"postcss": "^8.4.47",
-		"prisma": "^6.1.0",
+		"prisma": "^6.19.0",
 		"tailwindcss": "^3.4.17",
 		"tsx": "^4.20.5",
 		"typescript": "5.9.3",
@@ -113,5 +116,16 @@
 	},
 	"optionalDependencies": {
 		"bufferutil": "^4.0.8"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@prisma/client",
+			"@prisma/engines",
+			"prisma",
+			"esbuild",
+			"@swc/core",
+			"@parcel/watcher",
+			"bufferutil"
+		]
 	}
 }

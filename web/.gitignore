@@ -10,6 +10,7 @@ dist
 # TanStack Start
 .output
 .vinxi
+.vercel
 src/routeTree.gen.ts
 app.config.timestamp_*.js
 

@@ -1,6 +1,7 @@
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import { ThemeProvider } from "next-themes"
 import { useState } from "react"
 import { Toaster } from "@/components/ui/toaster"
@@ -93,6 +94,7 @@ function RootComponent() {
 					</ThemeProvider>
 					<ReactQueryDevtools buttonPosition="bottom-left" />
 				</QueryClientProvider>
+				<SpeedInsights />
 				<Scripts />
 			</body>
 		</html>

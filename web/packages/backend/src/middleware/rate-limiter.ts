@@ -74,7 +74,9 @@ export function rateLimiter(config: RateLimitConfig): MiddlewareHandler {
 		if (entry.count > maxRequests) {
 			const retryAfter = Math.ceil((entry.firstAttempt + windowMs - now) / 1000)
 
-			console.warn(`[Rate Limit] Blocked ${getClientIp(c)} on ${c.req.path}: ${entry.count} requests`)
+			console.warn(
+				`[Rate Limit] Blocked ${getClientIp(c)} on ${c.req.path}: ${entry.count} requests`
+			)
 
 			return c.json(
 				{

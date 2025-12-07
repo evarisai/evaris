@@ -16,7 +16,9 @@ async function handler({ request }: { request: Request }) {
 		const result = checkRateLimit(clientIp, endpoint)
 
 		if (!result.allowed) {
-			console.warn(`[Auth] Rate limited ${clientIp} on ${endpoint}: retry after ${result.retryAfter}s`)
+			console.warn(
+				`[Auth] Rate limited ${clientIp} on ${endpoint}: retry after ${result.retryAfter}s`
+			)
 			return createRateLimitResponse(result)
 		}
 	}

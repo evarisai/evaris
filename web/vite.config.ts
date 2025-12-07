@@ -1,5 +1,6 @@
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react-swc"
+import { nitro } from "nitro/vite"
 import { defineConfig } from "vite"
 import tsConfigPaths from "vite-tsconfig-paths"
 
@@ -12,6 +13,9 @@ export default defineConfig({
 			projects: ["./tsconfig.json"],
 		}),
 		tanstackStart(),
+		nitro({
+			preset: "vercel",
+		}),
 		viteReact(),
 	],
 })
