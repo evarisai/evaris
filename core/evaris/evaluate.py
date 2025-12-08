@@ -22,6 +22,7 @@ from evaris.types import (
     EvalResult,
     Golden,
     MetricResult,
+    MissingRequirementError,
     MultiModalInput,
     MultiModalOutput,
     TestCase,
@@ -251,7 +252,38 @@ def _run_single_test(
                             metric_span.set_attribute("metric.passed", result.passed)
                             tracer.set_status("ok")
 
+                        # Set status if not already set by the metric
+                        if result.status is None:
+                            result = MetricResult(
+                                name=result.name,
+                                score=result.score,
+                                passed=result.passed,
+                                status="passed" if result.passed else "failed",
+                                metadata=result.metadata,
+                                reasoning=result.reasoning,
+                                reasoning_steps=result.reasoning_steps,
+                                reasoning_type=result.reasoning_type,
+                            )
+
                         return result
+                    except MissingRequirementError as e:
+                        # Metric is missing required inputs - skip it
+                        tracer.set_attribute("metric.status", "skipped")
+                        tracer.set_attribute("metric.skip_reason", str(e))
+                        tracer.set_status("ok")  # Not an error, just skipped
+
+                        return MetricResult(
+                            name=metric_name,
+                            score=0.0,
+                            passed=True,  # Skipped metrics don't fail the test
+                            status="skipped",
+                            reasoning=str(e),
+                            metadata={
+                                "skip_reason": str(e),
+                                "missing_keys": e.missing_keys,
+                                "available_keys": e.available_keys,
+                            },
+                        )
                     except Exception as e:
                         # If metric evaluation fails, record it and warn user
                         tracer.set_attribute("metric.error", str(e))
@@ -272,6 +304,8 @@ def _run_single_test(
                             name=metric_name,
                             score=0.0,
                             passed=False,
+                            status="error",
+                            reasoning=f"Error: {e}",
                             metadata={"error": str(e), "error_type": type(e).__name__},
                         )
 

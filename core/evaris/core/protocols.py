@@ -121,10 +121,12 @@ class BaseMetric(ABC):
     - Implement measure() for synchronous evaluation
     - Provide reasoning_steps for transparency
     - Support tool calling via tools attribute
+    - Override get_required_metadata_keys() to declare required inputs
 
     Attributes:
         name: Unique identifier for the metric (auto-set from class name)
         threshold: Score threshold for pass/fail (default 0.5)
+        required_metadata_keys: List of metadata keys required for this metric
 
     Example:
         >>> class MyMetric(BaseMetric):
@@ -140,11 +142,24 @@ class BaseMetric(ABC):
     """
 
     threshold: float = 0.5
+    required_metadata_keys: list[str] = []
 
     @property
     def name(self) -> str:
         """Get the metric name (defaults to class name)."""
         return self.__class__.__name__
+
+    def get_required_metadata_keys(self) -> list[str]:
+        """Get the list of required metadata keys for this metric.
+
+        Override this method to dynamically determine required keys
+        (e.g., based on configuration). By default, returns the
+        required_metadata_keys class attribute.
+
+        Returns:
+            List of metadata keys that must be present in test_case.metadata
+        """
+        return self.required_metadata_keys
 
     @abstractmethod
     async def a_measure(self, test_case: TestCase, actual_output: Any) -> MetricResult:

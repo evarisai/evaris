@@ -16,6 +16,7 @@ from evaris_server.schemas import (
     EvaluateRequest,
     EvaluateResponse,
     MetricScore,
+    MetricStatus,
     MetricSummary,
     TestCaseInput,
     TestResultOutput,
@@ -49,6 +50,7 @@ class RunnerService:
         test_case: TestCaseInput,
     ) -> MetricScore:
         """Run a single metric on a test case."""
+        from evaris.core.types import MissingRequirementError
         from evaris.types import TestCase as EvarisTestCase
 
         metadata = dict(test_case.metadata or {})
@@ -65,21 +67,49 @@ class RunnerService:
         try:
             result = await metric.a_measure(evaris_tc, test_case.actual_output)
 
+            status = None
+            if hasattr(result, "status") and result.status:
+                status = MetricStatus(result.status)
+            else:
+                status = MetricStatus.PASSED if result.passed else MetricStatus.FAILED
+
+            reasoning = (
+                result.reasoning
+                if hasattr(result, "reasoning")
+                else result.metadata.get("reasoning")
+            )
+
             return MetricScore(
                 name=metric_name,
                 score=result.score,
                 passed=result.passed,
+                status=status,
                 threshold=getattr(result, "threshold", 0.5),
-                reasoning=result.metadata.get("reasoning"),
+                reasoning=reasoning,
                 reasoning_steps=result.metadata.get("reasoning_steps"),
                 reasoning_type=result.metadata.get("reasoning_type"),
                 metadata=result.metadata,
+            )
+        except MissingRequirementError as e:
+            return MetricScore(
+                name=metric_name,
+                score=0.0,
+                passed=True,  # Skipped metrics don't fail the test
+                status=MetricStatus.SKIPPED,
+                threshold=0.5,
+                reasoning=str(e),
+                metadata={
+                    "skip_reason": str(e),
+                    "missing_keys": e.missing_keys,
+                    "available_keys": e.available_keys,
+                },
             )
         except Exception as e:
             return MetricScore(
                 name=metric_name,
                 score=0.0,
                 passed=False,
+                status=MetricStatus.ERROR,
                 threshold=0.5,
                 reasoning=f"Error: {str(e)}",
                 metadata={"error": str(e)},

@@ -6,6 +6,7 @@ This module defines the fundamental data structures used throughout Evaris:
 - MetricResult: Single metric evaluation result
 - TestResult: Complete test case result
 - EvalResult: Aggregated evaluation results
+- MissingRequirementError: Exception for missing metric requirements
 """
 
 from collections.abc import Awaitable, Callable
@@ -13,6 +14,46 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class MissingRequirementError(Exception):
+    """Raised when a metric is missing required inputs.
+
+    This exception signals that a metric should be skipped rather than
+    failing with an error. The evaluation framework catches this exception
+    and marks the metric as "skipped" instead of "error".
+
+    Attributes:
+        metric_name: Name of the metric that's missing requirements
+        missing_keys: List of missing required metadata keys
+        available_keys: List of keys that are available in metadata
+
+    Example:
+        >>> raise MissingRequirementError(
+        ...     metric_name="faithfulness",
+        ...     missing_keys=["context"],
+        ...     available_keys=["difficulty"]
+        ... )
+    """
+
+    def __init__(
+        self,
+        metric_name: str,
+        missing_keys: list[str],
+        available_keys: list[str] | None = None,
+    ):
+        self.metric_name = metric_name
+        self.missing_keys = missing_keys
+        self.available_keys = available_keys or []
+        missing_str = ", ".join(f"'{k}'" for k in missing_keys)
+        available_str = (
+            ", ".join(f"'{k}'" for k in self.available_keys) if self.available_keys else "none"
+        )
+        super().__init__(
+            f"{metric_name} requires {missing_str} in test_case.metadata. "
+            f"Available keys: [{available_str}]"
+        )
+
 
 if TYPE_CHECKING:
     from evaris.baselines import BaselineComparisonReport
@@ -145,6 +186,9 @@ class ReasoningStep(BaseModel):
     )
 
 
+MetricStatus = Literal["passed", "failed", "skipped", "error"]
+
+
 class MetricResult(BaseModel):
     """Result from a single metric evaluation.
 
@@ -155,10 +199,17 @@ class MetricResult(BaseModel):
         name: Metric name
         score: Score between 0 and 1
         passed: Whether the test passed
+        status: Evaluation status (passed, failed, skipped, error)
         metadata: Additional metric-specific data
         reasoning: Human-readable reasoning summary
         reasoning_steps: Structured trace of reasoning steps
         reasoning_type: Type of reasoning ('logic', 'llm', 'hybrid')
+
+    Status values:
+        - passed: Metric ran successfully and score >= threshold
+        - failed: Metric ran successfully but score < threshold
+        - skipped: Metric was skipped (missing required inputs)
+        - error: Metric encountered an error during evaluation
 
     Example:
         >>> result = MetricResult(
@@ -172,6 +223,13 @@ class MetricResult(BaseModel):
     name: str = Field(..., description="Metric name")
     score: float = Field(..., ge=0.0, le=1.0, description="Score between 0 and 1")
     passed: bool = Field(..., description="Whether the test passed")
+    status: MetricStatus | None = Field(
+        default=None,
+        description=(
+            "Evaluation status: 'passed' (score >= threshold), 'failed' (score < threshold), "
+            "'skipped' (missing requirements), 'error' (evaluation error)"
+        ),
+    )
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metric-specific data"
     )

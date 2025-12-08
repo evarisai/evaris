@@ -16,6 +16,15 @@ class EvalStatus(str, Enum):
     FAILED = "FAILED"
 
 
+class MetricStatus(str, Enum):
+    """Status of a metric evaluation."""
+
+    PASSED = "passed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+    ERROR = "error"
+
+
 class TestCaseInput(BaseModel):
     """A single test case to evaluate."""
 
@@ -48,6 +57,7 @@ class MetricScore(BaseModel):
     name: str
     score: float
     passed: bool
+    status: MetricStatus | None = None
     threshold: float = 0.5
     reasoning: str | None = None
     reasoning_steps: list[dict[str, Any]] | None = None

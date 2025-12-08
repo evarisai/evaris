@@ -45,6 +45,13 @@ class ComplianceStatus(str, Enum):
     UNCHECKED = "UNCHECKED"
 
 
+class MetricStatus(str, Enum):
+    PASSED = "passed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+    ERROR = "error"
+
+
 class TestCase(BaseModel):
     input: Union[str, dict[str, Any]]
     expected: Optional[Union[str, dict[str, Any]]] = None
@@ -57,6 +64,7 @@ class MetricScore(BaseModel):
     name: str
     score: float = Field(ge=0.0, le=1.0)
     passed: bool
+    status: Optional[MetricStatus] = None
     threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
     reasoning: Optional[str] = None
     metadata: dict[str, Any] = Field(default_factory=dict)

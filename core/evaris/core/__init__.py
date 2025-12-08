@@ -29,6 +29,8 @@ from evaris.core.types import (
     EvalResult,
     Golden,
     MetricResult,
+    MetricStatus,
+    MissingRequirementError,
     MultiModalInput,
     MultiModalOutput,
     ReasoningStep,
@@ -42,6 +44,7 @@ __all__ = [
     "TestCase",
     "ReasoningStep",
     "MetricResult",
+    "MetricStatus",
     "TestResult",
     "EvalResult",
     "MultiModalInput",
@@ -49,6 +52,8 @@ __all__ = [
     "AgentFunction",
     "AsyncAgentFunction",
     "DatasetInput",
+    # Exceptions
+    "MissingRequirementError",
     # Protocols
     "BaseMetric",
     "BaseTool",

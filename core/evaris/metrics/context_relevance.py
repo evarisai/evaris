@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import Field
 
+from evaris.core.types import MissingRequirementError
 from evaris.metrics.llm_judge import JudgeConfig, LLMJudgeMetric
 from evaris.types import TestCase
 
@@ -41,6 +42,14 @@ class ContextRelevanceMetric(LLMJudgeMetric):
         # Re-type self.config for type checkers
         self.config: ContextRelevanceConfig = self.config  # type: ignore
 
+    def get_required_metadata_keys(self) -> list[str]:
+        """Get the list of required metadata keys for context relevance metric.
+
+        Returns:
+            List containing the configured context_key
+        """
+        return [self.config.context_key]
+
     def _validate_inputs(self, test_case: TestCase, actual_output: Any) -> None:
         """Validate inputs for context relevance.
 
@@ -52,13 +61,14 @@ class ContextRelevanceMetric(LLMJudgeMetric):
             actual_output: Agent's output (ignored for this metric)
 
         Raises:
-            ValueError: If context is missing
+            MissingRequirementError: If context is missing
         """
         context_key = self.config.context_key
         if context_key not in test_case.metadata:
-            raise ValueError(
-                f"Context relevance metric requires '{
-                    context_key}' in test_case.metadata"
+            raise MissingRequirementError(
+                metric_name=self.name,
+                missing_keys=[context_key],
+                available_keys=list(test_case.metadata.keys()),
             )
 
     def _get_default_prompt(self, test_case: TestCase, actual_output: Any) -> str:

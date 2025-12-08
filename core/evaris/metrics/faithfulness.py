@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from evaris.core.protocols import BaseMetric
-from evaris.core.types import MetricResult, TestCase
+from evaris.core.types import MetricResult, MissingRequirementError, TestCase
 from evaris.providers.base import BaseLLMProvider
 from evaris.providers.factory import get_provider
 
@@ -73,6 +73,14 @@ class FaithfulnessMetric(BaseMetric):
         self.threshold = self.config.threshold
         self._provider: BaseLLMProvider | None = None
 
+    def get_required_metadata_keys(self) -> list[str]:
+        """Get the list of required metadata keys for faithfulness metric.
+
+        Returns:
+            List containing the configured context_key
+        """
+        return [self.config.context_key]
+
     def _get_provider(self) -> BaseLLMProvider:
         """Get or create the LLM provider."""
         if self._provider is None:
@@ -93,14 +101,15 @@ class FaithfulnessMetric(BaseMetric):
             Context value
 
         Raises:
-            ValueError: If context is missing
+            MissingRequirementError: If context is missing
         """
         context_key = self.config.context_key
         context = test_case.metadata.get(context_key)
         if context is None:
-            raise ValueError(
-                f"Faithfulness metric requires '{context_key}' in test_case.metadata. "
-                f"Available keys: {list(test_case.metadata.keys())}"
+            raise MissingRequirementError(
+                metric_name=self.name,
+                missing_keys=[context_key],
+                available_keys=list(test_case.metadata.keys()),
             )
         return context
 
@@ -197,8 +206,9 @@ Your response:"""
             name="faithfulness",
             score=score,
             passed=passed,
+            status="passed" if passed else "failed",
+            reasoning=reasoning,
             metadata={
-                "reasoning": reasoning,
                 "unsupported_claims": unsupported_claims,
                 "context_length": len(str(context)),
                 "provider": self.config.provider,
