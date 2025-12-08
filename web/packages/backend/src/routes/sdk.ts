@@ -75,6 +75,7 @@ const testCaseSchema = z.object({
 	input: z.unknown(),
 	expected: z.unknown().optional().nullable(),
 	actual_output: z.unknown(),
+	context: z.unknown().optional().nullable(),
 	metadata: z.record(z.unknown()).optional().default({}),
 })
 

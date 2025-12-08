@@ -31,9 +31,9 @@ let boss: PgBoss | null = null
 
 export async function getBoss(): Promise<PgBoss> {
 	if (!boss) {
-		const connectionString = process.env.DATABASE_URL
+		const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL
 		if (!connectionString) {
-			throw new Error("DATABASE_URL is required")
+			throw new Error("DIRECT_URL or DATABASE_URL is required")
 		}
 
 		boss = new PgBoss({

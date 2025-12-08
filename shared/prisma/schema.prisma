@@ -32,15 +32,18 @@ model Organization {
   // If this is a personal org, link to the owning user (for cascade delete)
   owner user? @relation("PersonalOrganization")
 
-  memberships Membership[]
-  projects    Project[]
-  datasets    Dataset[]
-  evals       Eval[]
-  traces      Trace[]
-  logs        Log[]
-  apiKeys     ApiKey[]
-  invitations Invitation[]
-  auditLogs   AuditLog[]
+  memberships      Membership[]
+  projects         Project[]
+  datasets         Dataset[]
+  experiments      Experiment[]
+  evals            Eval[]
+  traceSessions    TraceSession[]
+  traces           Trace[]
+  logs             Log[]
+  apiKeys          ApiKey[]
+  invitations      Invitation[]
+  auditLogs        AuditLog[]
+  complianceChecks ComplianceCheck[]
 
   @@map("organization")
 }
@@ -71,19 +74,64 @@ enum Role {
 }
 
 // ===========================================
+// PROJECT MODE ENUMS
+// ===========================================
+
+enum ProjectMode {
+  EVALS // Evaluation and testing
+  OBSERVABILITY // Traces and logs
+  MONITORING // Real-time monitoring
+}
+
+// ===========================================
+// COMPLIANCE ENUMS
+// ===========================================
+
+enum ComplianceFramework {
+  ABC // Evaris ABC compliance framework
+  SOC2 // SOC2 compliance
+  GDPR // GDPR data protection
+  EU_AI_ACT // EU AI Act requirements
+}
+
+enum ComplianceStatus {
+  COMPLIANT // All checks passed
+  WARNING // Minor issues detected
+  VIOLATION // Critical compliance violation
+  UNCHECKED // Not yet evaluated
+}
+
+// ===========================================
+// OBSERVATION TYPE ENUMS
+// ===========================================
+
+enum ObservationType {
+  SPAN // Generic span (function call, operation)
+  GENERATION // LLM generation (with token tracking)
+  EVENT // Point-in-time event
+}
+
+enum ObservationLevel {
+  DEBUG // Debug level observation
+  DEFAULT // Normal operation
+  WARNING // Warning - something may be wrong
+  ERROR // Error occurred
+}
+
+// ===========================================
 // API KEYS FOR PROGRAMMATIC ACCESS
 // ===========================================
 
 model ApiKey {
-  id          String       @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
-  keyHash     String       @unique // SHA-256 hash of the actual key
-  keyPrefix   String       // First 8 chars for identification (e.g., "evaris_sk_abc12345...")
-  permissions ApiKeyScope  @default(READ_WRITE)
+  keyHash     String      @unique // SHA-256 hash of the actual key
+  keyPrefix   String // First 8 chars for identification (e.g., "evaris_sk_abc12345...")
+  permissions ApiKeyScope @default(READ_WRITE)
   lastUsedAt  DateTime?
   expiresAt   DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   // Belongs to organization (tenant)
   organizationId String
@@ -147,9 +195,9 @@ enum InvitationStatus {
 
 model AuditLog {
   id         String   @id @default(cuid())
-  action     String   // e.g., "project.created", "eval.deleted", "member.invited"
-  entityType String   // e.g., "project", "eval", "dataset", "member"
-  entityId   String?  // ID of the affected entity
+  action     String // e.g., "project.created", "eval.deleted", "member.invited"
+  entityType String // e.g., "project", "eval", "dataset", "member"
+  entityId   String? // ID of the affected entity
   metadata   Json     @default("{}") // Additional context (old values, new values, etc.)
   ipAddress  String?
   userAgent  String?
@@ -177,27 +225,28 @@ model AuditLog {
 
 // Better Auth - User model
 model user {
-  id            String    @id
+  id            String   @id
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Personal organization - created on signup, deleted when user is deleted
   // This is the user's default workspace that cannot be deleted independently
   personalOrganizationId String?       @unique
   personalOrganization   Organization? @relation("PersonalOrganization", fields: [personalOrganizationId], references: [id], onDelete: SetNull)
 
-  sessions          session[]
-  accounts          account[]
-  memberships       Membership[]
-  createdProjects   Project[]     @relation("ProjectCreator")
-  createdEvals      Eval[]        @relation("EvalCreator")
-  createdApiKeys    ApiKey[]      @relation("ApiKeyCreator")
-  sentInvitations   Invitation[]  @relation("InvitationSender")
-  auditLogs         AuditLog[]    @relation("AuditLogActor")
+  sessions           session[]
+  accounts           account[]
+  memberships        Membership[]
+  createdProjects    Project[]    @relation("ProjectCreator")
+  createdExperiments Experiment[] @relation("ExperimentCreator")
+  createdEvals       Eval[]       @relation("EvalCreator")
+  createdApiKeys     ApiKey[]     @relation("ApiKeyCreator")
+  sentInvitations    Invitation[] @relation("InvitationSender")
+  auditLogs          AuditLog[]   @relation("AuditLogActor")
 
   @@map("user")
 }
@@ -253,13 +302,15 @@ model verification {
 // APPLICATION MODELS
 // ===========================================
 
-// Projects for organizing evaluations
+// Projects for organizing evaluations, observability, and monitoring
 model Project {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  modes       ProjectMode[] @default([EVALS]) // Multi-mode support
+  settings    Json          @default("{}") // Project-specific settings (retention, alerting, etc.)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   // Belongs to organization (tenant)
   organizationId String
@@ -267,10 +318,15 @@ model Project {
 
   // Creator for audit purposes
   createdById String?
-  createdBy   user?    @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   user?   @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
-  evals    Eval[]
-  datasets Dataset[]
+  experiments      Experiment[]
+  evals            Eval[]
+  datasets         Dataset[]
+  traces           Trace[]
+  logs             Log[]
+  traceSessions    TraceSession[]
+  complianceChecks ComplianceCheck[]
 
   @@index([organizationId])
   @@index([createdById])
@@ -283,8 +339,8 @@ model Dataset {
   description String?
   format      DatasetFormat @default(JSONL)
   itemCount   Int           @default(0)
-  fileUrl     String?       // URL to the stored dataset file (e.g., S3, GCS)
-  fileSize    Int?          // Size in bytes
+  fileUrl     String? // URL to the stored dataset file (e.g., S3, GCS)
+  fileSize    Int? // Size in bytes
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -308,20 +364,69 @@ enum DatasetFormat {
   PARQUET
 }
 
+// Experiments for versioning and A/B comparison
+model Experiment {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  // Configuration snapshot at experiment time
+  config Json @default("{}") // Prompt, model, parameters, etc.
+
+  // Versioning support
+  version  Int          @default(1)
+  parentId String?
+  parent   Experiment?  @relation("ExperimentVersions", fields: [parentId], references: [id], onDelete: SetNull)
+  children Experiment[] @relation("ExperimentVersions")
+
+  // Experiment metadata
+  hypothesis String? // What are we testing?
+  conclusion String? // What did we learn?
+  tags       String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Belongs to organization (tenant)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Creator for audit purposes
+  createdById String?
+  createdBy   user?   @relation("ExperimentCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  evals Eval[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([parentId])
+  @@map("experiment")
+}
+
 // Evaluation runs
 model Eval {
-  id          String     @id @default(cuid())
-  name        String
-  status      EvalStatus @default(PENDING)
-  total       Int?       // Total test cases
-  passed      Int?       // Passed test cases
-  failed      Int?       // Failed test cases
-  accuracy    Float?     // Pass rate (0.0 - 1.0)
-  summary     Json?      // Detailed summary with per-metric stats
-  metadata    Json       @default("{}")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  completedAt DateTime?  // When evaluation finished
+  id       String     @id @default(cuid())
+  name     String
+  status   EvalStatus @default(PENDING)
+  total    Int? // Total test cases
+  passed   Int? // Passed test cases
+  failed   Int? // Failed test cases
+  accuracy Float? // Pass rate (0.0 - 1.0)
+  summary  Json? // Detailed summary with per-metric stats
+  metadata Json       @default("{}")
+
+  // Progress tracking for real-time updates
+  progress    Int       @default(0) // Current progress (0-100)
+  startedAt   DateTime? // When evaluation started
+  completedAt DateTime? // When evaluation finished
+  durationMs  Int? // Total duration in milliseconds
+  totalCost   Float? // Total cost in USD (for LLM-as-judge)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Belongs to organization (tenant)
   organizationId String
@@ -329,10 +434,19 @@ model Eval {
 
   // Creator for audit purposes
   createdById String?
-  createdBy   user?    @relation("EvalCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   user?   @relation("EvalCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Optional experiment - for versioning and comparison
+  experimentId String?
+  experiment   Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+
+  // Baseline comparison - compare this eval against a previous one
+  baselineEvalId String?
+  baselineEval   Eval?   @relation("EvalComparison", fields: [baselineEvalId], references: [id], onDelete: SetNull)
+  comparedEvals  Eval[]  @relation("EvalComparison")
 
   // Optional dataset - inline assessments via SDK don't require a stored dataset
   datasetId String?
@@ -346,27 +460,70 @@ model Eval {
   @@index([organizationId])
   @@index([createdById])
   @@index([projectId])
+  @@index([experimentId])
   @@index([datasetId])
   @@index([status])
+  @@index([baselineEvalId])
 }
 
 // Individual test case results
 model TestResult {
-  id           String   @id @default(cuid())
-  input        String   // JSON-encoded input
-  expected     String?  // JSON-encoded expected output
-  actualOutput String   // JSON-encoded actual output
-  scores       Json     // Array of metric scores
+  id String @id @default(cuid())
+
+  // Test case fields
+  input        Json // Can be string or structured object
+  expected     Json? // Expected output
+  actualOutput Json // Actual output from the system
+  context      Json? // Retrieved context for RAG evaluations
+
+  scores Json @default("[]")
+
+  // Aggregate results
   passed       Boolean
-  latencyMs    Float?
-  error        String?
-  metadata     Json     @default("{}")
-  createdAt    DateTime @default(now())
+  overallScore Float? // 0-1 aggregate score
+
+  // Performance metrics
+  latencyMs  Float?
+  tokenCount Int? // Total tokens used
+  cost       Float? // Cost in USD
+
+  // Error handling
+  error     String?
+  errorType String? // Classification of error type
+
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
 
   evalId String
   eval   Eval   @relation(fields: [evalId], references: [id], onDelete: Cascade)
 
+  // Detailed per-metric scores (queryable)
+  metricScores MetricScore[]
+
   @@index([evalId])
+  @@index([passed])
+}
+
+// Individual metric scores for queryable filtering (extracted from TestResult.scores)
+model MetricScore {
+  id         String  @id @default(cuid())
+  metricName String // e.g., "hallucination", "answer_relevancy", "toxicity"
+  score      Float // Normalized 0-1 score
+  passed     Boolean // Did it meet the threshold?
+  threshold  Float? // Threshold used for this evaluation
+  reason     String? // LLM-as-judge explanation/reasoning
+
+  // Additional metric-specific data
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  testResultId String
+  testResult   TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+
+  @@index([testResultId])
+  @@index([metricName])
+  @@index([passed])
+  @@map("metric_score")
 }
 
 enum EvalStatus {
@@ -376,10 +533,61 @@ enum EvalStatus {
   FAILED
 }
 
-// OpenTelemetry-compatible traces
+// ===========================================
+// TRACE SESSION MODEL
+// ===========================================
+
+// Trace sessions group related traces together (e.g., multi-turn conversations)
+model TraceSession {
+  id        String @id @default(cuid())
+  sessionId String // External session ID from SDK
+
+  // User tracking
+  userId    String? // External user ID
+  userEmail String? // User email for display
+  userName  String? // User name for display
+
+  // Session metadata
+  metadata Json     @default("{}")
+  tags     String[] @default([])
+
+  // Aggregates (updated by triggers/background jobs)
+  traceCount    Int   @default(0)
+  totalDuration Int   @default(0) // Total duration across all traces (ms)
+  totalCost     Float @default(0) // Total cost across all traces (USD)
+  totalTokens   Int   @default(0) // Total tokens across all traces
+
+  firstTraceAt DateTime?
+  lastTraceAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Belongs to organization (tenant)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Belongs to project
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  traces Trace[]
+
+  @@unique([organizationId, sessionId])
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([firstTraceAt])
+  @@map("trace_session")
+}
+
+// ===========================================
+// TRACE MODEL (OpenTelemetry-compatible)
+// ===========================================
+
+// OpenTelemetry-compatible traces with enhanced features
 model Trace {
   id           String      @id @default(cuid())
-  traceId      String      @unique
+  traceId      String      @unique // OpenTelemetry trace ID (32 char hex)
   rootSpanName String
   serviceName  String
   status       TraceStatus @default(UNSET)
@@ -389,19 +597,49 @@ model Trace {
   endTime      DateTime?
   createdAt    DateTime    @default(now())
 
-  // Direct organization link for tenant isolation (required for traces without evalId)
+  // Session grouping
+  traceSessionId String?
+  traceSession   TraceSession? @relation(fields: [traceSessionId], references: [id], onDelete: SetNull)
+
+  // User tracking (can be set independently of session)
+  userId       String? // External user ID
+  userMetadata Json    @default("{}") // User-related metadata
+
+  // Environment and release tracking
+  environment String? // "production", "staging", "development"
+  release     String? // Version/release tag
+
+  // Tags for filtering and grouping
+  tags String[] @default([])
+
+  // Cost tracking (for LLM operations)
+  totalTokens Int? // Total tokens in this trace
+  totalCost   Float? // Total cost in USD
+
+  // Direct organization link for tenant isolation
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  // Project link (required for project-scoped traces)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Optional eval link
   evalId String?
   eval   Eval?   @relation(fields: [evalId], references: [id], onDelete: SetNull)
 
-  spans Span[]
+  observations Observation[]
+  logs         Log[]
 
   @@index([organizationId])
+  @@index([projectId])
+  @@index([traceSessionId])
   @@index([evalId])
   @@index([traceId])
   @@index([startTime])
+  @@index([userId])
+  @@index([environment])
+  @@index([tags])
 }
 
 enum TraceStatus {
@@ -410,25 +648,61 @@ enum TraceStatus {
   UNSET
 }
 
-// Individual spans within a trace
-model Span {
-  id            String      @id @default(cuid())
-  spanId        String
-  parentSpanId  String?
-  operationName String
-  serviceName   String
-  kind          SpanKind    @default(INTERNAL)
+// ===========================================
+// OBSERVATION MODEL (replaces Span)
+// ===========================================
+
+// Observations are typed events within a trace: spans, LLM generations, or events
+model Observation {
+  id           String          @id @default(cuid())
+  spanId       String // OpenTelemetry span ID (16 char hex)
+  parentSpanId String? // Parent observation for hierarchy
+  type         ObservationType @default(SPAN)
+
+  // Common fields
+  name          String // Operation name
+  startTime     DateTime
+  endTime       DateTime?
+  duration      Int? // milliseconds
   status        TraceStatus @default(UNSET)
-  startTime     Int // relative to trace start in ms
-  duration      Int // in milliseconds
-  attributes    Json        @default("{}")
-  events        Json        @default("[]")
+  statusMessage String? // Error message if status is ERROR
+
+  // LLM Generation specific (populated only when type=GENERATION)
+  model        String? // e.g., "gpt-4", "claude-3-opus"
+  modelParams  Json? // temperature, top_p, max_tokens, etc.
+  input        Json? // Prompt/messages (can be string or structured)
+  output       Json? // Completion/response
+  inputTokens  Int?
+  outputTokens Int?
+  totalTokens  Int?
+  cost         Float? // USD cost for this generation
+
+  // Event specific (when type=EVENT)
+  eventName String?
+
+  // OpenTelemetry compatibility
+  kind       SpanKind @default(INTERNAL)
+  attributes Json     @default("{}")
+  events     Json     @default("[]") // Span events (OpenTelemetry)
+
+  // Observation level
+  level ObservationLevel @default(DEFAULT)
+
+  // Metadata
+  serviceName String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
 
   traceId String
   trace   Trace  @relation(fields: [traceId], references: [id], onDelete: Cascade)
 
   @@index([traceId])
   @@index([spanId])
+  @@index([parentSpanId])
+  @@index([type])
+  @@index([model])
+  @@index([startTime])
+  @@map("observation")
 }
 
 enum SpanKind {
@@ -439,24 +713,35 @@ enum SpanKind {
   CONSUMER
 }
 
-// Structured logs
+// Structured logs with trace correlation
 model Log {
   id        String   @id @default(cuid())
   timestamp DateTime @default(now())
   level     LogLevel
-  source    String
-  agentId   String?
+  source    String // Service/component that generated the log
+  agentId   String? // Agent ID for multi-agent systems
   message   String
   metadata  Json     @default("{}")
 
-  // Direct organization link for tenant isolation (required for logs without evalId)
+  // Direct organization link for tenant isolation
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  // Project link (required for project-scoped logs)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Trace correlation (link logs to traces)
+  traceId String?
+  trace   Trace?  @relation(fields: [traceId], references: [id], onDelete: SetNull)
+
+  // Eval link
   evalId String?
   eval   Eval?   @relation(fields: [evalId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
+  @@index([projectId])
+  @@index([traceId])
   @@index([evalId])
   @@index([level])
   @@index([source])
@@ -469,4 +754,49 @@ enum LogLevel {
   WARNING
   ERROR
   CRITICAL
+}
+
+// ===========================================
+// COMPLIANCE CHECK MODEL (ABC Framework)
+// ===========================================
+
+// Compliance checks for ABC, SOC2, GDPR, EU AI Act
+model ComplianceCheck {
+  id        String              @id @default(cuid())
+  framework ComplianceFramework
+  rule      String // Specific rule/requirement being checked
+  status    ComplianceStatus    @default(UNCHECKED)
+  score     Float? // 0-1 score (if applicable)
+  passed    Boolean? // Did it pass the threshold?
+
+  // Evidence and reasoning
+  evidence   String? // What was found
+  reasoning  String? // Why this status was assigned
+  suggestion String? // How to fix/improve
+
+  // What was checked
+  entityType String // "eval", "trace", "model", "dataset"
+  entityId   String? // ID of the entity checked
+  metadata   Json    @default("{}")
+
+  checkedAt DateTime  @default(now())
+  expiresAt DateTime? // When this check should be re-run
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Belongs to organization (tenant)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Project link
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([framework])
+  @@index([status])
+  @@index([entityType])
+  @@index([checkedAt])
+  @@map("compliance_check")
 }

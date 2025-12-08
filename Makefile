@@ -111,7 +111,7 @@ install-web:
 
 install-python:
 	cd core && uv venv && uv pip install -e ".[dev]"
-	cd server && uv venv && uv pip install -e ".[dev]"
+	cd server && uv venv && uv pip install -e ../core && uv pip install -e ".[dev]"
 
 # Cleanup
 clean:

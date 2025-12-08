@@ -22,6 +22,7 @@ class TestCaseInput(BaseModel):
     input: Any = Field(..., description="Input to the agent/model")
     expected: Any | None = Field(None, description="Expected output (optional)")
     actual_output: Any = Field(..., description="Actual output from agent/model")
+    context: Any | None = Field(None, description="Context for RAG evaluation (retrieval context)")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
 

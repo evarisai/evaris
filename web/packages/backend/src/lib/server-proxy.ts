@@ -183,6 +183,7 @@ export function transformAssessRequest(sdkBody: {
 		input?: unknown
 		expected?: unknown | null
 		actual_output?: unknown
+		context?: unknown | null
 		metadata?: Record<string, unknown>
 	}>
 	metrics: string[]
@@ -193,6 +194,7 @@ export function transformAssessRequest(sdkBody: {
 		input: unknown
 		expected: unknown | null
 		actual_output: unknown
+		context: unknown | null
 		metadata: Record<string, unknown>
 	}>
 	metrics: string[]
@@ -204,6 +206,7 @@ export function transformAssessRequest(sdkBody: {
 			input: tc.input,
 			expected: tc.expected ?? null,
 			actual_output: tc.actual_output,
+			context: tc.context ?? null,
 			metadata: tc.metadata || {},
 		})),
 		metrics: sdkBody.metrics,

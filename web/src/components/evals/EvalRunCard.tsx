@@ -1,0 +1,389 @@
+import { motion, AnimatePresence } from "framer-motion"
+import {
+	Activity,
+	AlertTriangle,
+	CheckCircle2,
+	ChevronDown,
+	Clock,
+	DollarSign,
+	Loader2,
+	Play,
+	XCircle,
+} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+export interface EvalMetric {
+	name: string
+	score: number
+	passed: boolean
+	threshold?: number
+}
+
+export interface EvalRunData {
+	id: string
+	name: string
+	status: "pending" | "running" | "passed" | "failed"
+	progress: number
+	total: number
+	passed: number
+	failed: number
+	accuracy: number | null
+	metrics: EvalMetric[]
+	durationMs: number | null
+	cost: number | null
+	experimentName?: string
+	modelName?: string
+	createdAt: string
+}
+
+interface EvalRunCardProps {
+	data: EvalRunData
+	onViewDetails?: (id: string) => void
+	onRerun?: (id: string) => void
+	isExpanded?: boolean
+	onToggleExpand?: () => void
+}
+
+const statusConfig = {
+	pending: {
+		icon: Clock,
+		label: "Pending",
+		color: "text-zinc-400",
+		bgColor: "bg-zinc-500/10",
+		borderColor: "border-zinc-500/30",
+		glowColor: "shadow-zinc-500/5",
+	},
+	running: {
+		icon: Loader2,
+		label: "Running",
+		color: "text-amber-400",
+		bgColor: "bg-amber-500/10",
+		borderColor: "border-amber-500/30",
+		glowColor: "shadow-amber-500/10",
+	},
+	passed: {
+		icon: CheckCircle2,
+		label: "Passed",
+		color: "text-emerald-400",
+		bgColor: "bg-emerald-500/10",
+		borderColor: "border-emerald-500/30",
+		glowColor: "shadow-emerald-500/10",
+	},
+	failed: {
+		icon: XCircle,
+		label: "Failed",
+		color: "text-rose-400",
+		bgColor: "bg-rose-500/10",
+		borderColor: "border-rose-500/30",
+		glowColor: "shadow-rose-500/10",
+	},
+}
+
+function MetricPill({ metric }: { metric: EvalMetric }) {
+	const scorePercent = Math.round(metric.score * 100)
+	return (
+		<div
+			className={cn(
+				"inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono",
+				"border transition-all duration-200",
+				metric.passed
+					? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+					: "bg-rose-500/5 border-rose-500/20 text-rose-400"
+			)}
+		>
+			<span className="text-zinc-500 text-[10px] uppercase tracking-wider">{metric.name}</span>
+			<span className="font-semibold">{scorePercent}%</span>
+			{metric.passed ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
+		</div>
+	)
+}
+
+function formatDuration(ms: number | null): string {
+	if (ms === null) return "--"
+	if (ms < 1000) return `${ms}ms`
+	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
+	const minutes = Math.floor(ms / 60000)
+	const seconds = Math.round((ms % 60000) / 1000)
+	return `${minutes}m ${seconds}s`
+}
+
+function formatCost(cost: number | null): string {
+	if (cost === null) return "--"
+	if (cost < 0.01) return `$${cost.toFixed(4)}`
+	return `$${cost.toFixed(2)}`
+}
+
+export function EvalRunCard({
+	data,
+	onViewDetails,
+	onRerun,
+	isExpanded = false,
+	onToggleExpand,
+}: EvalRunCardProps) {
+	const config = statusConfig[data.status]
+	const StatusIcon = config.icon
+	const isRunning = data.status === "running"
+	const accuracyPercent = data.accuracy !== null ? Math.round(data.accuracy * 100) : null
+
+	return (
+		<motion.div
+			layout
+			initial={{ opacity: 0, y: 8 }}
+			animate={{ opacity: 1, y: 0 }}
+			exit={{ opacity: 0, y: -8 }}
+			className={cn(
+				"group relative rounded-lg border bg-card/50 backdrop-blur-sm",
+				"transition-all duration-300 ease-out",
+				"hover:bg-card/80",
+				config.borderColor,
+				isExpanded && "ring-1 ring-primary/20"
+			)}
+		>
+			<div
+				className={cn(
+					"absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none",
+					config.glowColor,
+					"shadow-[0_0_40px_-10px]"
+				)}
+			/>
+
+			<div
+				className="relative p-4 cursor-pointer"
+				onClick={onToggleExpand}
+				onKeyDown={(e) => e.key === "Enter" && onToggleExpand?.()}
+				tabIndex={0}
+				role="button"
+			>
+				<div className="flex items-start justify-between gap-4 mb-3">
+					<div className="flex items-center gap-3 min-w-0 flex-1">
+						<div
+							className={cn(
+								"flex items-center justify-center w-8 h-8 rounded-md",
+								config.bgColor,
+								"transition-transform duration-200",
+								isRunning && "animate-pulse"
+							)}
+						>
+							<StatusIcon className={cn("w-4 h-4", config.color, isRunning && "animate-spin")} />
+						</div>
+
+						<div className="min-w-0 flex-1">
+							<h3 className="font-semibold text-foreground truncate">{data.name}</h3>
+							<div className="flex items-center gap-2 mt-0.5">
+								<code className="text-xs font-mono text-zinc-500">{data.id.slice(0, 12)}</code>
+								{data.experimentName && (
+									<Badge variant="outline" className="text-[10px] px-1.5 py-0">
+										{data.experimentName}
+									</Badge>
+								)}
+								{data.modelName && (
+									<Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono">
+										{data.modelName}
+									</Badge>
+								)}
+							</div>
+						</div>
+					</div>
+
+					<motion.div
+						animate={{ rotate: isExpanded ? 180 : 0 }}
+						transition={{ duration: 0.2 }}
+						className="text-zinc-500"
+					>
+						<ChevronDown className="w-5 h-5" />
+					</motion.div>
+				</div>
+
+				{isRunning && (
+					<div className="mb-3">
+						<div className="flex items-center justify-between text-xs mb-1.5">
+							<span className="text-zinc-500">Progress</span>
+							<span className="font-mono text-amber-400">{data.progress}%</span>
+						</div>
+						<div className="relative h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+							<motion.div
+								className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-amber-400 rounded-full"
+								initial={{ width: 0 }}
+								animate={{ width: `${data.progress}%` }}
+								transition={{ duration: 0.5, ease: "easeOut" }}
+							/>
+							<motion.div
+								className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+								animate={{ x: ["-100%", "200%"] }}
+								transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+							/>
+						</div>
+					</div>
+				)}
+
+				<div className="grid grid-cols-4 gap-3 mb-3">
+					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
+						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+							Accuracy
+						</div>
+						<div
+							className={cn(
+								"text-lg font-mono font-bold tabular-nums",
+								accuracyPercent !== null && accuracyPercent >= 80
+									? "text-emerald-400"
+									: accuracyPercent !== null && accuracyPercent >= 60
+										? "text-amber-400"
+										: accuracyPercent !== null
+											? "text-rose-400"
+											: "text-zinc-500"
+							)}
+						>
+							{accuracyPercent !== null ? `${accuracyPercent}%` : "--"}
+						</div>
+					</div>
+
+					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
+						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+							Pass Rate
+						</div>
+						<div className="text-lg font-mono font-bold tabular-nums">
+							<span className="text-emerald-400">{data.passed}</span>
+							<span className="text-zinc-600">/</span>
+							<span className="text-zinc-400">{data.total}</span>
+						</div>
+					</div>
+
+					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
+						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+							Duration
+						</div>
+						<div className="text-lg font-mono font-bold tabular-nums text-zinc-300 flex items-center justify-center gap-1">
+							<Clock className="w-3.5 h-3.5 text-zinc-500" />
+							{formatDuration(data.durationMs)}
+						</div>
+					</div>
+
+					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
+						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Cost</div>
+						<div className="text-lg font-mono font-bold tabular-nums text-zinc-300 flex items-center justify-center gap-1">
+							<DollarSign className="w-3.5 h-3.5 text-zinc-500" />
+							{formatCost(data.cost)}
+						</div>
+					</div>
+				</div>
+
+				{data.metrics.length > 0 && (
+					<div className="flex flex-wrap gap-1.5">
+						{data.metrics.slice(0, 5).map((metric) => (
+							<MetricPill key={metric.name} metric={metric} />
+						))}
+						{data.metrics.length > 5 && (
+							<span className="text-xs text-zinc-500 self-center">
+								+{data.metrics.length - 5} more
+							</span>
+						)}
+					</div>
+				)}
+			</div>
+
+			<AnimatePresence>
+				{isExpanded && (
+					<motion.div
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: "auto", opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.3, ease: "easeInOut" }}
+						className="overflow-hidden"
+					>
+						<div className="px-4 pb-4 border-t border-zinc-800 pt-4">
+							<div className="flex items-center gap-2 mb-4">
+								<Button
+									size="sm"
+									variant="outline"
+									onClick={(e) => {
+										e.stopPropagation()
+										onViewDetails?.(data.id)
+									}}
+									className="gap-1.5"
+								>
+									<Activity className="w-3.5 h-3.5" />
+									View Results
+								</Button>
+								<Button
+									size="sm"
+									variant="ghost"
+									onClick={(e) => {
+										e.stopPropagation()
+										onRerun?.(data.id)
+									}}
+									className="gap-1.5"
+								>
+									<Play className="w-3.5 h-3.5" />
+									Re-run
+								</Button>
+							</div>
+
+							{data.metrics.length > 0 && (
+								<div className="space-y-2">
+									<h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+										Metric Details
+									</h4>
+									<div className="grid grid-cols-2 gap-2">
+										{data.metrics.map((metric) => (
+											<div
+												key={metric.name}
+												className="flex items-center justify-between p-2 rounded bg-zinc-900/50 border border-zinc-800"
+											>
+												<span className="text-sm text-zinc-400">{metric.name}</span>
+												<div className="flex items-center gap-2">
+													<div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+														<div
+															className={cn(
+																"h-full rounded-full transition-all",
+																metric.passed ? "bg-emerald-500" : "bg-rose-500"
+															)}
+															style={{ width: `${metric.score * 100}%` }}
+														/>
+													</div>
+													<span
+														className={cn(
+															"text-sm font-mono font-semibold",
+															metric.passed ? "text-emerald-400" : "text-rose-400"
+														)}
+													>
+														{Math.round(metric.score * 100)}%
+													</span>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							)}
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</motion.div>
+	)
+}
+
+export function EvalRunCardSkeleton() {
+	return (
+		<div className="rounded-lg border border-zinc-800 bg-card/50 p-4 animate-pulse">
+			<div className="flex items-start gap-3 mb-3">
+				<div className="w-8 h-8 rounded-md bg-zinc-800" />
+				<div className="flex-1">
+					<div className="h-5 w-40 bg-zinc-800 rounded mb-1.5" />
+					<div className="h-3 w-24 bg-zinc-800 rounded" />
+				</div>
+			</div>
+			<div className="grid grid-cols-4 gap-3 mb-3">
+				{[1, 2, 3, 4].map((i) => (
+					<div key={i} className="h-16 bg-zinc-800 rounded-md" />
+				))}
+			</div>
+			<div className="flex gap-1.5">
+				{[1, 2, 3].map((i) => (
+					<div key={i} className="h-6 w-20 bg-zinc-800 rounded" />
+				))}
+			</div>
+		</div>
+	)
+}

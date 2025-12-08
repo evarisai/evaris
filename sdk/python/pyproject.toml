@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "evaris-client"
-version = "0.1.0"
+version = "0.2.0"
 description = "Lightweight Python client for Evaris AI evaluation platform"
 authors = [
     { name = "Roshan Nrusing Swain", email = "swaingotnochill@gmail.com" }
@@ -34,6 +34,9 @@ dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
     "respx>=0.20.0",
+]
+examples = [
+    "python-dotenv>=1.0.0",
 ]
 
 [project.urls]

@@ -99,6 +99,58 @@ export const evalsRouter = router({
 			})
 		}),
 
+	getByIdWithResults: organizationProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				resultsLimit: z.number().min(1).max(500).default(100),
+				resultsOffset: z.number().min(0).default(0),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			const [evalData, testResults, totalResults] = await Promise.all([
+				ctx.prisma.eval.findUnique({
+					where: {
+						id: input.id,
+						organizationId: ctx.activeOrganization.id,
+					},
+					include: {
+						project: true,
+						dataset: true,
+						experiment: true,
+						baselineEval: {
+							select: { id: true, name: true, accuracy: true },
+						},
+					},
+				}),
+				ctx.prisma.testResult.findMany({
+					where: { evalId: input.id },
+					orderBy: { createdAt: "asc" },
+					take: input.resultsLimit,
+					skip: input.resultsOffset,
+					include: {
+						metricScores: true,
+					},
+				}),
+				ctx.prisma.testResult.count({
+					where: { evalId: input.id },
+				}),
+			])
+
+			if (!evalData) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Evaluation not found",
+				})
+			}
+
+			return {
+				...evalData,
+				testResults,
+				totalResults,
+			}
+		}),
+
 	create: organizationProcedure
 		.input(
 			z.object({

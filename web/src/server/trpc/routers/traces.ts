@@ -53,7 +53,7 @@ export const tracesRouter = router({
 					organizationId: ctx.activeOrganization.id,
 				},
 				include: {
-					spans: { orderBy: { startTime: "asc" } },
+					observations: { orderBy: { startTime: "asc" } },
 				},
 			})
 		}),
@@ -67,7 +67,7 @@ export const tracesRouter = router({
 					organizationId: ctx.activeOrganization.id,
 				},
 				include: {
-					spans: { orderBy: { startTime: "asc" } },
+					observations: { orderBy: { startTime: "asc" } },
 				},
 			})
 		}),
@@ -136,17 +136,22 @@ export const tracesRouter = router({
 					evalId,
 					organizationId: ctx.activeOrganization.id,
 					spanCount: spans?.length ?? 0,
-					spans: spans
+					observations: spans
 						? {
 								create: spans.map((span) => ({
-									...span,
-									attributes: (span.attributes ?? {}) as object,
-									events: (span.events ?? []) as object[],
+									spanId: span.spanId,
+									parentSpanId: span.parentSpanId,
+									name: span.operationName,
+									type: "SPAN" as const,
+									startTime: new Date(span.startTime),
+									duration: span.duration,
+									status: span.status,
+									metadata: (span.attributes ?? {}) as object,
 								})),
 							}
 						: undefined,
 				},
-				include: { spans: true },
+				include: { observations: true },
 			})
 		}),
 

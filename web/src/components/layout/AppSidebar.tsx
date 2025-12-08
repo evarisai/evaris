@@ -86,7 +86,7 @@ export function AppSidebar() {
 					<SidebarGroupContent>
 						<SidebarMenu className="space-y-0.5">
 							{menuItems.map((item, index) => {
-								const isActive = location.pathname === item.url
+								const isActive = location.pathname.startsWith(item.url)
 								return (
 									<SidebarMenuItem key={item.title} style={{ animationDelay: `${index * 30}ms` }}>
 										<SidebarMenuButton

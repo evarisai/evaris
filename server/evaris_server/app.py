@@ -20,6 +20,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print(f"  Environment: {settings.environment}")
     print(f"  Judge model: {settings.judge_model}")
 
+    # Register all default metrics
+    from evaris_server.register_metrics import register_all_metrics
+
+    register_all_metrics()
+
     db = await get_database()
     print("  Database: connected")
 

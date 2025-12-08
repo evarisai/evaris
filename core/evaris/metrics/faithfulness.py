@@ -5,33 +5,63 @@ provided context. It checks if the answer can be derived *solely* from the conte
 detecting hallucinations.
 """
 
+import json
+import re
 from typing import Any
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from evaris.metrics.llm_judge import JudgeConfig, LLMJudgeMetric
-from evaris.types import TestCase
+from evaris.core.protocols import BaseMetric
+from evaris.core.types import MetricResult, TestCase
+from evaris.providers.base import BaseLLMProvider
+from evaris.providers.factory import get_provider
 
 
-class FaithfulnessConfig(JudgeConfig):
+class FaithfulnessConfig(BaseModel):
     """Configuration for faithfulness metric."""
 
+    provider: str = Field(
+        default="openrouter",
+        description="LLM provider name",
+    )
+    model: str | None = Field(
+        default=None,
+        description="Model to use (uses provider default if not specified)",
+    )
+    threshold: float = Field(
+        default=0.7,
+        description="Score threshold for passing (0.0-1.0)",
+    )
     context_key: str = Field(
-        default="context", description="Key in test_case.metadata containing the context"
+        default="context",
+        description="Key in test_case.metadata containing the context",
+    )
+    temperature: float = Field(
+        default=0.0,
+        description="LLM temperature for deterministic results",
     )
 
 
-class FaithfulnessMetric(LLMJudgeMetric):
+class FaithfulnessMetric(BaseMetric):
     """Faithfulness metric for RAG evaluation.
 
     Measures if the generated answer is faithful to the retrieved context.
     High score means the answer is supported by the context.
     Low score means the answer contains hallucinations or information not in context.
 
+    This metric is referenceless - it requires context but not expected output.
+
+    Algorithm:
+    1. Extract claims from the actual output
+    2. Check each claim against the provided context
+    3. Calculate: supported_claims / total_claims
+
     ABC Compliance:
     - O.c.1: Uses LLM-as-a-judge for semantic verification
     - O.c.2: Detects hallucinations (unsupported claims)
     """
+
+    threshold: float = 0.7
 
     def __init__(self, config: FaithfulnessConfig | None = None):
         """Initialize faithfulness metric.
@@ -39,60 +69,139 @@ class FaithfulnessMetric(LLMJudgeMetric):
         Args:
             config: Configuration for faithfulness. If None, uses defaults.
         """
-        super().__init__(config or FaithfulnessConfig())
-        # Re-type self.config for type checkers
-        self.config: FaithfulnessConfig = self.config  # type: ignore
+        self.config = config or FaithfulnessConfig()
+        self.threshold = self.config.threshold
+        self._provider: BaseLLMProvider | None = None
 
-    def _validate_inputs(self, test_case: TestCase, actual_output: Any) -> None:
-        """Validate inputs for faithfulness.
+    def _get_provider(self) -> BaseLLMProvider:
+        """Get or create the LLM provider."""
+        if self._provider is None:
+            self._provider = get_provider(
+                provider=self.config.provider,
+                model=self.config.model,
+                temperature=self.config.temperature,
+            )
+        return self._provider
 
-        Requires 'context' in metadata (or configured key).
-        Does NOT require 'expected' output.
+    def _get_context(self, test_case: TestCase) -> Any:
+        """Extract context from test case metadata.
 
         Args:
             test_case: Test case
-            actual_output: Agent's output
+
+        Returns:
+            Context value
 
         Raises:
             ValueError: If context is missing
         """
         context_key = self.config.context_key
-        if context_key not in test_case.metadata:
-            raise ValueError(f"Faithfulness metric requires '{context_key}' in test_case.metadata")
+        context = test_case.metadata.get(context_key)
+        if context is None:
+            raise ValueError(
+                f"Faithfulness metric requires '{context_key}' in test_case.metadata. "
+                f"Available keys: {list(test_case.metadata.keys())}"
+            )
+        return context
 
-    def _get_default_prompt(self, test_case: TestCase, actual_output: Any) -> str:
-        """Get faithfulness judge prompt.
+    def _build_faithfulness_prompt(self, context: Any, actual_output: Any) -> str:
+        """Build the faithfulness evaluation prompt.
 
         Args:
-            test_case: Test case with context
+            context: Retrieved context
             actual_output: Agent's actual output
 
         Returns:
-            Formatted judge prompt
+            Formatted evaluation prompt
         """
-        context = test_case.metadata[self.config.context_key]
+        context_str = context if isinstance(context, str) else str(context)
 
         return f"""You are an expert evaluator for RAG (Retrieval-Augmented Generation) systems.
-Your task is to evaluate the FAITHFULNESS of the Actual Output to the provided Context.
+Your task is to evaluate the FAITHFULNESS of the Response to the provided Context.
 
 Context:
-{context}
+{context_str}
 
-Actual Output:
+Response:
 {actual_output}
 
-Evaluate if the Actual Output is faithful to the Context.
-- The output must be derived SOLELY from the provided Context.
-- Any claim not supported by the Context is a hallucination (Faithfulness = 0).
-- If the output uses outside knowledge not present in the Context, it is not faithful.
-- If the output contradicts the Context, it is not faithful.
+Evaluate if the Response is faithful to the Context.
+- The response must be derived SOLELY from the provided Context.
+- Any claim not supported by the Context is a hallucination.
+- If the response uses outside knowledge not present in the Context, it is not faithful.
+- If the response contradicts the Context, it is not faithful.
 
 Respond with ONLY a JSON object in this exact format:
-{{"score": <float between 0.0 and 1.0>, "reasoning": "<brief explanation>"}}
+{{"score": <float between 0.0 and 1.0>, "reasoning": "<brief explanation>", "unsupported_claims": ["<list any claims not supported by context>"]}}
 
 Score Guidelines:
-- 1.0: All claims in the output are fully supported by the Context.
-- 0.5: Some claims are supported, but some are not found in the Context.
-- 0.0: The output contradicts the Context or contains entirely unsupported claims.
+- 1.0: All claims in the response are fully supported by the Context.
+- 0.7-0.9: Most claims are supported with minor unsupported inferences.
+- 0.4-0.6: Mix of supported and unsupported claims.
+- 0.1-0.3: Mostly unsupported or fabricated.
+- 0.0: The response contradicts the Context or contains entirely unsupported claims.
 
 Your response:"""
+
+    def _parse_response(self, response: str) -> tuple[float, str, list[str]]:
+        """Parse LLM response to extract score, reasoning, and unsupported claims.
+
+        Args:
+            response: Raw LLM response
+
+        Returns:
+            Tuple of (score, reasoning, unsupported_claims)
+        """
+        try:
+            data = json.loads(response.strip())
+            score = float(data.get("score", 0.0))
+            reasoning = str(data.get("reasoning", ""))
+            unsupported = list(data.get("unsupported_claims", []))
+            return score, reasoning, unsupported
+        except (json.JSONDecodeError, ValueError):
+            # Fallback to regex extraction
+            score_match = re.search(r"score[:\s]+([0-9]+\.?[0-9]*)", response, re.IGNORECASE)
+            if not score_match:
+                return 0.0, f"Failed to parse response: {response}", []
+
+            try:
+                return float(score_match.group(1)), response, []
+            except ValueError:
+                return 0.0, f"Failed to parse response: {response}", []
+
+    async def a_measure(
+        self,
+        test_case: TestCase,
+        actual_output: Any,
+    ) -> MetricResult:
+        """Measure faithfulness of output to context.
+
+        Args:
+            test_case: Test case with context in metadata
+            actual_output: Generated response
+
+        Returns:
+            MetricResult with faithfulness score
+        """
+        context = self._get_context(test_case)
+        provider = self._get_provider()
+
+        prompt = self._build_faithfulness_prompt(context, actual_output)
+        response = await provider.a_complete(prompt)
+
+        score, reasoning, unsupported_claims = self._parse_response(response.content)
+        score = max(0.0, min(1.0, score))
+        passed = score >= self.threshold
+
+        return MetricResult(
+            name="faithfulness",
+            score=score,
+            passed=passed,
+            metadata={
+                "reasoning": reasoning,
+                "unsupported_claims": unsupported_claims,
+                "context_length": len(str(context)),
+                "provider": self.config.provider,
+                "model": self.config.model or "default",
+            },
+        )

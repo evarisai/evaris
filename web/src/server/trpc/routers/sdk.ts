@@ -114,18 +114,22 @@ export const sdkRouter = router({
 				evalId,
 				organizationId: ctx.activeOrganization.id,
 				spanCount: spans?.length ?? 0,
-				spans: spans
+				observations: spans?.length
 					? {
 							create: spans.map((span) => ({
-								...span,
+								spanId: span.spanId,
 								parentSpanId: span.parentSpanId ?? undefined,
-								attributes: (span.attributes ?? {}) as object,
-								events: (span.events ?? []) as object[],
+								name: span.operationName,
+								type: "SPAN" as const,
+								startTime: new Date(span.startTime),
+								duration: span.duration,
+								status: span.status,
+								metadata: (span.attributes ?? {}) as object,
 							})),
 						}
 					: undefined,
 			},
-			include: { spans: true },
+			include: { observations: true },
 		})
 	}),
 
@@ -152,7 +156,7 @@ export const sdkRouter = router({
 				}
 			}
 
-			// Create traces one by one to handle nested spans
+			// Create traces one by one to handle nested observations
 			const results = await Promise.all(
 				input.map(async (trace) => {
 					const { spans, evalId, ...traceData } = trace
@@ -162,13 +166,17 @@ export const sdkRouter = router({
 							evalId,
 							organizationId: ctx.activeOrganization.id,
 							spanCount: spans?.length ?? 0,
-							spans: spans
+							observations: spans
 								? {
 										create: spans.map((span) => ({
-											...span,
+											spanId: span.spanId,
 											parentSpanId: span.parentSpanId ?? undefined,
-											attributes: (span.attributes ?? {}) as object,
-											events: (span.events ?? []) as object[],
+											name: span.operationName,
+											type: "SPAN" as const,
+											startTime: new Date(span.startTime),
+											duration: span.duration,
+											status: span.status,
+											metadata: (span.attributes ?? {}) as object,
 										})),
 									}
 								: undefined,
@@ -206,7 +214,7 @@ export const sdkRouter = router({
 					orderBy: { startTime: "desc" },
 					take: input?.limit ?? 50,
 					skip: input?.offset ?? 0,
-					include: { spans: true },
+					include: { observations: true },
 				}),
 				ctx.prisma.trace.count({ where }),
 			])
@@ -222,7 +230,7 @@ export const sdkRouter = router({
 					id: input.id,
 					organizationId: ctx.activeOrganization.id,
 				},
-				include: { spans: { orderBy: { startTime: "asc" } } },
+				include: { observations: { orderBy: { startTime: "asc" } } },
 			})
 		}),
 
@@ -234,7 +242,7 @@ export const sdkRouter = router({
 					traceId: input.traceId,
 					organizationId: ctx.activeOrganization.id,
 				},
-				include: { spans: { orderBy: { startTime: "asc" } } },
+				include: { observations: { orderBy: { startTime: "asc" } } },
 			})
 		}),
 

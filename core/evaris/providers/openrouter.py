@@ -64,11 +64,25 @@ class OpenRouterProvider(BaseLLMProvider):
             api_key: API key (can also use OPENROUTER_API_KEY env var)
             model: Model to use (default: claude-3.5-sonnet)
         """
+        env_key = os.getenv("OPENROUTER_API_KEY")
+        resolved_key = api_key or (config.api_key if config else None) or env_key
+
         if config is None:
             config = ProviderConfig(
-                api_key=api_key or os.getenv("OPENROUTER_API_KEY"),
+                api_key=resolved_key,
                 model=model or DEFAULT_MODELS["evaluation"],
             )
+        elif not config.api_key and resolved_key:
+            config = ProviderConfig(
+                api_key=resolved_key,
+                model=config.model or model or DEFAULT_MODELS["evaluation"],
+                base_url=config.base_url,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                timeout=config.timeout,
+                max_retries=config.max_retries,
+            )
+
         super().__init__(config)
 
         if not self.config.api_key:
@@ -331,16 +345,21 @@ class OpenRouterProvider(BaseLLMProvider):
 
     def close(self) -> None:
         """Close HTTP clients."""
-        if self._client:
-            self._client.close()
+        client = getattr(self, "_client", None)
+        if client:
+            client.close()
             self._client = None
 
     async def aclose(self) -> None:
         """Close async HTTP client."""
-        if self._async_client:
-            await self._async_client.aclose()
+        client = getattr(self, "_async_client", None)
+        if client:
+            await client.aclose()
             self._async_client = None
 
     def __del__(self) -> None:
         """Cleanup on deletion."""
-        self.close()
+        try:
+            self.close()
+        except Exception:
+            pass

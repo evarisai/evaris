@@ -517,7 +517,7 @@ Your response:"""
         passed = score >= self.config.threshold
 
         return MetricResult(
-            name="llm_judge",
+            name=self.name,
             score=score,
             passed=passed,
             metadata=metadata,
@@ -552,7 +552,7 @@ Your response:"""
         passed = score >= self.config.threshold
 
         return MetricResult(
-            name="llm_judge",
+            name=self.name,
             score=score,
             passed=passed,
             metadata={
@@ -603,7 +603,7 @@ Your response:"""
         passed = score >= self.config.threshold
 
         return MetricResult(
-            name="llm_judge",
+            name=self.name,
             score=score,
             passed=passed,
             metadata={
@@ -692,7 +692,3 @@ Your response:"""
         except RuntimeError:
             # No event loop, create one
             return asyncio.run(self.a_measure(test_case, actual_output))
-
-
-# Alias for backward compatibility
-LLMJudgeMetric = LLMJudge

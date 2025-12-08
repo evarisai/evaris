@@ -1,6 +1,6 @@
 """Runner service - runs LLM judge and computes metrics."""
 
-import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -20,6 +20,8 @@ from evaris_server.schemas import (
     TestCaseInput,
     TestResultOutput,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class RunnerService:
@@ -42,24 +44,29 @@ class RunnerService:
 
     async def _run_metric(
         self,
+        metric_name: str,
         metric: Any,
         test_case: TestCaseInput,
     ) -> MetricScore:
         """Run a single metric on a test case."""
         from evaris.types import TestCase as EvarisTestCase
 
+        metadata = dict(test_case.metadata or {})
+        if test_case.context is not None:
+            metadata["context"] = test_case.context
+
         evaris_tc = EvarisTestCase(
             input=test_case.input,
             expected=test_case.expected,
             actual_output=test_case.actual_output,
-            metadata=test_case.metadata,
+            metadata=metadata,
         )
 
         try:
             result = await metric.a_measure(evaris_tc, test_case.actual_output)
 
             return MetricScore(
-                name=result.name,
+                name=metric_name,
                 score=result.score,
                 passed=result.passed,
                 threshold=getattr(result, "threshold", 0.5),
@@ -70,7 +77,7 @@ class RunnerService:
             )
         except Exception as e:
             return MetricScore(
-                name=getattr(metric, "name", metric.__class__.__name__),
+                name=metric_name,
                 score=0.0,
                 passed=False,
                 threshold=0.5,
@@ -95,7 +102,7 @@ class RunnerService:
                 metric = self._get_metric_instance(metric_name)
                 metrics.append((metric_name, metric))
             except ValueError as e:
-                print(f"Warning: {e}")
+                logger.warning("Invalid metric requested: %s", e)
 
         if not metrics:
             raise ValueError("No valid metrics specified")
@@ -105,11 +112,11 @@ class RunnerService:
             name: {"scores": [], "passed": 0, "count": 0} for name, _ in metrics
         }
 
-        for test_case in request.test_cases:
+        for i, test_case in enumerate(request.test_cases):
             scores: list[MetricScore] = []
 
             for metric_name, metric in metrics:
-                score = await self._run_metric(metric, test_case)
+                score = await self._run_metric(metric_name, metric, test_case)
                 scores.append(score)
 
                 metric_stats[metric_name]["scores"].append(score.score)
@@ -118,9 +125,11 @@ class RunnerService:
                     metric_stats[metric_name]["passed"] += 1
 
             all_passed = all(s.passed for s in scores)
+            result_id = f"{assessment_id}_result_{i}"
 
             results.append(
                 TestResultOutput(
+                    id=result_id,
                     input=test_case.input,
                     expected=test_case.expected,
                     actual_output=test_case.actual_output,
@@ -248,9 +257,7 @@ class RunnerService:
                 }
             )
 
-            for i, result in enumerate(results):
-                result_id = f"{assessment_id}_result_{i}"
-
+            for result in results:
                 scores_data = [
                     {
                         "name": s.name,
@@ -267,11 +274,11 @@ class RunnerService:
 
                 await client.testresult.create(
                     data={
-                        "id": result_id,
+                        "id": result.id,  # type: ignore[typeddict-item]
                         "evalId": assessment_id,
-                        "input": json.dumps(result.input),
-                        "expected": json.dumps(result.expected) if result.expected else None,
-                        "actualOutput": json.dumps(result.actual_output),
+                        "input": PrismaJson(result.input),
+                        "expected": PrismaJson(result.expected) if result.expected else None,
+                        "actualOutput": PrismaJson(result.actual_output),
                         "scores": PrismaJson(scores_data),
                         "passed": result.passed,
                         "latencyMs": result.latency_ms,

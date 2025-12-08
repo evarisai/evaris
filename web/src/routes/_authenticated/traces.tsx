@@ -35,26 +35,22 @@ export const Route = createFileRoute("/_authenticated/traces")({
 type SpanStatus = "OK" | "ERROR" | "UNSET"
 type SpanKind = "INTERNAL" | "CLIENT" | "SERVER" | "PRODUCER" | "CONSUMER"
 
-interface Span {
+interface Observation {
 	id: string
 	spanId: string
 	parentSpanId: string | null
-	operationName: string
-	serviceName: string
+	name: string
+	serviceName: string | null
 	kind: SpanKind
 	status: SpanStatus
-	startTime: number
-	duration: number
+	startTime: Date
+	duration: number | null
 	attributes: Record<string, unknown> | null
-	events: Array<{
-		name: string
-		timestamp: number
-		attributes?: Record<string, unknown>
-	}> | null
+	metadata: Record<string, unknown> | null
 }
 
-// Type for trace with spans (used by API response typing)
-type _TraceWithSpans = {
+// Type for trace with observations (used by API response typing)
+type _TraceWithObservations = {
 	id: string
 	traceId: string
 	rootSpanName: string
@@ -63,7 +59,7 @@ type _TraceWithSpans = {
 	startTime: Date
 	duration: number
 	spanCount: number
-	spans?: Span[]
+	observations?: Observation[]
 }
 
 const _statusColors: Record<SpanStatus, string> = {
@@ -152,33 +148,35 @@ function Traces() {
 
 	const hasActiveFilters = searchQuery || statusFilter !== "all" || serviceFilter !== "all"
 
-	const renderSpanBar = (span: Span, totalDuration: number) => {
-		const leftPercent = (span.startTime / totalDuration) * 100
-		const widthPercent = Math.max((span.duration / totalDuration) * 100, 1)
+	const renderSpanBar = (obs: Observation, totalDuration: number) => {
+		const startMs = new Date(obs.startTime).getTime()
+		const duration = obs.duration ?? 0
+		const leftPercent = totalDuration > 0 ? (startMs / totalDuration) * 100 : 0
+		const widthPercent = Math.max((duration / totalDuration) * 100, 1)
 
 		return (
 			<div className="relative h-6 bg-muted rounded">
 				<div
-					className={`absolute h-full rounded ${statusBgColors[span.status]} opacity-80`}
+					className={`absolute h-full rounded ${statusBgColors[obs.status]} opacity-80`}
 					style={{
-						left: `${leftPercent}%`,
-						width: `${widthPercent}%`,
+						left: `${Math.min(leftPercent, 100)}%`,
+						width: `${Math.min(widthPercent, 100)}%`,
 					}}
 				/>
 				<div
 					className="absolute text-xs text-muted-foreground whitespace-nowrap"
-					style={{ left: `${leftPercent + widthPercent + 1}%` }}
+					style={{ left: `${Math.min(leftPercent + widthPercent + 1, 100)}%` }}
 				>
-					{formatDuration(span.duration)}
+					{formatDuration(duration)}
 				</div>
 			</div>
 		)
 	}
 
-	const getSpanDepth = (span: Span, spans: Span[]): number => {
-		if (!span.parentSpanId) return 0
-		const parent = spans.find((s) => s.spanId === span.parentSpanId)
-		return parent ? getSpanDepth(parent, spans) + 1 : 0
+	const getSpanDepth = (obs: Observation, observations: Observation[]): number => {
+		if (!obs.parentSpanId) return 0
+		const parent = observations.find((o) => o.spanId === obs.parentSpanId)
+		return parent ? getSpanDepth(parent, observations) + 1 : 0
 	}
 
 	return (
@@ -344,11 +342,11 @@ function Traces() {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						{selectedTrace?.spans ? (
+						{selectedTrace?.observations ? (
 							<Tabs defaultValue="timeline" className="w-full">
 								<TabsList className="mb-4">
 									<TabsTrigger value="timeline">Timeline</TabsTrigger>
-									<TabsTrigger value="spans">Spans</TabsTrigger>
+									<TabsTrigger value="observations">Observations</TabsTrigger>
 								</TabsList>
 
 								<TabsContent value="timeline" className="space-y-4">
@@ -356,10 +354,13 @@ function Traces() {
 										<div className="text-xs text-muted-foreground mb-2">
 											Total Duration: {formatDuration(selectedTrace.duration)}
 										</div>
-										{selectedTrace.spans.map((span) => {
-											const depth = getSpanDepth(span as Span, selectedTrace.spans as Span[])
+										{selectedTrace.observations.map((obs) => {
+											const depth = getSpanDepth(
+												obs as Observation,
+												selectedTrace.observations as Observation[]
+											)
 											return (
-												<Collapsible key={span.id} open={expandedSpans.has(span.spanId)}>
+												<Collapsible key={obs.id} open={expandedSpans.has(obs.spanId)}>
 													<div
 														className="flex items-center gap-2 py-1"
 														style={{ paddingLeft: `${depth * 16}px` }}
@@ -369,9 +370,9 @@ function Traces() {
 																variant="ghost"
 																size="sm"
 																className="h-5 w-5 p-0"
-																onClick={() => toggleSpan(span.spanId)}
+																onClick={() => toggleSpan(obs.spanId)}
 															>
-																{expandedSpans.has(span.spanId) ? (
+																{expandedSpans.has(obs.spanId) ? (
 																	<ChevronDown className="h-3 w-3" />
 																) : (
 																	<ChevronRight className="h-3 w-3" />
@@ -379,17 +380,15 @@ function Traces() {
 															</Button>
 														</CollapsibleTrigger>
 														<span
-															className={`w-2 h-2 rounded-full ${statusBgColors[span.status as SpanStatus]}`}
+															className={`w-2 h-2 rounded-full ${statusBgColors[obs.status as SpanStatus]}`}
 														/>
-														<span className="text-xs font-medium truncate flex-1">
-															{span.operationName}
-														</span>
+														<span className="text-xs font-medium truncate flex-1">{obs.name}</span>
 														<Badge variant="outline" className="text-xs">
-															{kindLabels[span.kind as SpanKind]}
+															{kindLabels[obs.kind as SpanKind]}
 														</Badge>
 													</div>
 													<div className="mb-2" style={{ paddingLeft: `${depth * 16 + 28}px` }}>
-														{renderSpanBar(span as Span, selectedTrace.duration)}
+														{renderSpanBar(obs as Observation, selectedTrace.duration)}
 													</div>
 													<CollapsibleContent>
 														<div
@@ -399,43 +398,21 @@ function Traces() {
 															<div className="grid grid-cols-2 gap-2 mb-2">
 																<div>
 																	<span className="text-muted-foreground">Service:</span>{" "}
-																	{span.serviceName}
+																	{obs.serviceName ?? "N/A"}
 																</div>
 																<div>
 																	<span className="text-muted-foreground">Duration:</span>{" "}
-																	{formatDuration(span.duration)}
+																	{formatDuration(obs.duration ?? 0)}
 																</div>
 															</div>
-															{span.attributes && Object.keys(span.attributes).length > 0 && (
+															{obs.metadata && Object.keys(obs.metadata).length > 0 && (
 																<>
-																	<div className="text-muted-foreground mb-1">Attributes:</div>
+																	<div className="text-muted-foreground mb-1">Metadata:</div>
 																	<pre className="bg-background p-2 rounded overflow-x-auto text-xs">
-																		{JSON.stringify(span.attributes, null, 2)}
+																		{JSON.stringify(obs.metadata, null, 2)}
 																	</pre>
 																</>
 															)}
-															{span.events &&
-																Array.isArray(span.events) &&
-																span.events.length > 0 && (
-																	<>
-																		<div className="text-muted-foreground mt-2 mb-1">Events:</div>
-																		<div className="space-y-1">
-																			{(
-																				span.events as Array<{ name: string; timestamp: number }>
-																			).map((event) => (
-																				<div
-																					key={`${event.name}-${event.timestamp}`}
-																					className="flex items-center gap-2"
-																				>
-																					<span className="text-muted-foreground">
-																						+{event.timestamp - span.startTime}ms
-																					</span>
-																					<span>{event.name}</span>
-																				</div>
-																			))}
-																		</div>
-																	</>
-																)}
 														</div>
 													</CollapsibleContent>
 												</Collapsible>
@@ -444,25 +421,25 @@ function Traces() {
 									</div>
 								</TabsContent>
 
-								<TabsContent value="spans" className="space-y-2">
-									{selectedTrace.spans.map((span) => (
-										<Card key={span.id} className="p-3">
+								<TabsContent value="observations" className="space-y-2">
+									{selectedTrace.observations.map((obs) => (
+										<Card key={obs.id} className="p-3">
 											<div className="flex items-center justify-between mb-2">
 												<div className="flex items-center gap-2">
 													<span
-														className={`w-2 h-2 rounded-full ${statusBgColors[span.status as SpanStatus]}`}
+														className={`w-2 h-2 rounded-full ${statusBgColors[obs.status as SpanStatus]}`}
 													/>
-													<span className="font-medium text-sm">{span.operationName}</span>
+													<span className="font-medium text-sm">{obs.name}</span>
 												</div>
 												<Badge variant="outline" className="text-xs">
-													{formatDuration(span.duration)}
+													{formatDuration(obs.duration ?? 0)}
 												</Badge>
 											</div>
 											<div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-												<div>Service: {span.serviceName}</div>
-												<div>Kind: {kindLabels[span.kind as SpanKind]}</div>
-												<div>Span ID: {span.spanId}</div>
-												{span.parentSpanId && <div>Parent: {span.parentSpanId}</div>}
+												<div>Service: {obs.serviceName ?? "N/A"}</div>
+												<div>Kind: {kindLabels[obs.kind as SpanKind]}</div>
+												<div>Span ID: {obs.spanId}</div>
+												{obs.parentSpanId && <div>Parent: {obs.parentSpanId}</div>}
 											</div>
 										</Card>
 									))}

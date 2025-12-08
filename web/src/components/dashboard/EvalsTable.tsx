@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "@tanstack/react-router"
 import {
 	ChevronDown,
 	ChevronLeft,
@@ -60,7 +61,14 @@ interface EvalsTableProps {
 type SortField = keyof EvalRun
 type SortDirection = "asc" | "desc"
 
-export function EvalsTable({ data, onViewDetails, onRerun, onEdit, onDelete }: EvalsTableProps) {
+export function EvalsTable({
+	data,
+	onViewDetails: _onViewDetails,
+	onRerun,
+	onEdit,
+	onDelete,
+}: EvalsTableProps) {
+	const navigate = useNavigate()
 	const [search, setSearch] = useState("")
 	const [statusFilter, setStatusFilter] = useState<string>("all")
 	const [sortField, setSortField] = useState<SortField>("timestamp")
@@ -88,6 +96,12 @@ export function EvalsTable({ data, onViewDetails, onRerun, onEdit, onDelete }: E
 		.sort((a, b) => {
 			const aVal = a[sortField]
 			const bVal = b[sortField]
+
+			// Handle null/undefined values - push them to the end
+			if (aVal == null && bVal == null) return 0
+			if (aVal == null) return 1
+			if (bVal == null) return -1
+
 			if (typeof aVal === "string" && typeof bVal === "string") {
 				return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
 			}
@@ -220,10 +234,22 @@ export function EvalsTable({ data, onViewDetails, onRerun, onEdit, onDelete }: E
 							paginatedData.map((row) => (
 								<TableRow
 									key={row.id}
-									className="hover:bg-muted/40 transition-colors"
+									className="hover:bg-muted/40 transition-colors cursor-pointer"
 									data-testid={`row-eval-${row.id}`}
+									onClick={() => {
+										navigate({ to: "/evals/$evalId", params: { evalId: row.id } })
+									}}
 								>
-									<TableCell className="font-medium">{row.name}</TableCell>
+									<TableCell className="font-medium">
+										<Link
+											to="/evals/$evalId"
+											params={{ evalId: row.id }}
+											className="hover:text-primary hover:underline"
+											onClick={(e) => e.stopPropagation()}
+										>
+											{row.name}
+										</Link>
+									</TableCell>
 									<TableCell className="text-muted-foreground">{row.project}</TableCell>
 									<TableCell className="text-muted-foreground">{row.dataset}</TableCell>
 									<TableCell>{getStatusBadge(row.status)}</TableCell>
@@ -237,7 +263,7 @@ export function EvalsTable({ data, onViewDetails, onRerun, onEdit, onDelete }: E
 										{row.accuracy != null ? `${(row.accuracy * 100).toFixed(1)}%` : "-"}
 									</TableCell>
 									<TableCell className="text-muted-foreground text-sm">{row.timestamp}</TableCell>
-									<TableCell>
+									<TableCell onClick={(e) => e.stopPropagation()}>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button
@@ -249,9 +275,11 @@ export function EvalsTable({ data, onViewDetails, onRerun, onEdit, onDelete }: E
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												<DropdownMenuItem onClick={() => onViewDetails?.(row.id)}>
-													<Eye className="mr-2 h-4 w-4" />
-													View Details
+												<DropdownMenuItem asChild>
+													<Link to="/evals/$evalId" params={{ evalId: row.id }}>
+														<Eye className="mr-2 h-4 w-4" />
+														View Details
+													</Link>
 												</DropdownMenuItem>
 												<DropdownMenuItem onClick={() => onEdit?.(row.id)}>
 													<Pencil className="mr-2 h-4 w-4" />
