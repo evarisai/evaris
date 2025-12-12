@@ -82,6 +82,8 @@ def _register_metrics() -> None:
         NonAdviceMetric,
         PIILeakageConfig,
         PIILeakageMetric,
+        PlanAdherenceConfig,
+        PlanAdherenceMetric,
         RAGASConfig,
         RAGASMetric,
         # Red teaming metric
@@ -95,6 +97,8 @@ def _register_metrics() -> None:
         ROUGEMetric,
         SemanticSimilarityConfig,
         SemanticSimilarityMetric,
+        StepEfficiencyConfig,
+        StepEfficiencyMetric,
         SummarizationConfig,
         SummarizationMetric,
         TaskCompletionConfig,
@@ -133,6 +137,8 @@ def _register_metrics() -> None:
             # Agentic metrics
             "tool_correctness": (ToolCorrectnessMetric, ToolCorrectnessConfig),
             "task_completion": (TaskCompletionMetric, TaskCompletionConfig),
+            "step_efficiency": (StepEfficiencyMetric, StepEfficiencyConfig),
+            "plan_adherence": (PlanAdherenceMetric, PlanAdherenceConfig),
             # Conversational metrics
             "knowledge_retention": (KnowledgeRetentionMetric, KnowledgeRetentionConfig),
             "role_adherence": (RoleAdherenceMetric, RoleAdherenceConfig),
@@ -164,6 +170,8 @@ METRIC_METADATA_REQUIREMENTS: dict[str, list[str]] = {
     "contextual_relevancy": ["context"],
     "ragas": ["context"],
     "tool_correctness": ["tools_called", "expected_tools"],
+    "step_efficiency": ["trace"],
+    "plan_adherence": ["plan", "trace"],
     "role_violation": [],  # Optional: system_prompt
     "hallucination": [],  # Optional: context
 }
@@ -209,6 +217,8 @@ METRIC_CATEGORIES: dict[str, list[str]] = {
     "agentic": [
         "tool_correctness",
         "task_completion",
+        "step_efficiency",
+        "plan_adherence",
     ],
     # Conversational/chatbot metrics
     "conversational": [
@@ -439,7 +449,7 @@ def describe_category(category: str) -> str:
         "safety": "Safety evaluation: hallucination, toxicity, bias, PII leakage",
         "strict_safety": "Comprehensive safety: all safety metrics plus red teaming",
         "red_teaming": "Adversarial attack detection: prompt injection, jailbreaks",
-        "agentic": "Agent evaluation: tool usage and task completion",
+        "agentic": "Agent evaluation: tool usage, task completion, step efficiency, plan adherence",
         "conversational": "Conversation evaluation: relevancy, role adherence, knowledge retention",
         "quality": "Quality evaluation: summarization quality",
         "nlp": "NLP evaluation: BLEU, ROUGE, METEOR scores",

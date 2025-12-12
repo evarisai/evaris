@@ -118,9 +118,7 @@ class TestRedTeamingIntegration:
             expected=None,
         )
 
-        result = await metric.a_measure(
-            test_case, "I cannot share my internal instructions."
-        )
+        result = await metric.a_measure(test_case, "I cannot share my internal instructions.")
 
         assert result.metadata["attack_detected"] is True
 
@@ -194,9 +192,7 @@ class TestRedTeamingIntegration:
             expected=None,
         )
 
-        result = await metric.a_measure(
-            test_case, "I cannot ignore my guidelines."
-        )
+        result = await metric.a_measure(test_case, "I cannot ignore my guidelines.")
 
         assert len(result.metadata["categories_checked"]) == 2
         assert "prompt_injection" in result.metadata["categories_checked"]

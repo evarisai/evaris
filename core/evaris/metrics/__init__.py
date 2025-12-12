@@ -74,6 +74,10 @@ from evaris.metrics.advanced import (
 
 # Agentic metrics
 from evaris.metrics.agentic import (
+    PlanAdherenceConfig,
+    PlanAdherenceMetric,
+    StepEfficiencyConfig,
+    StepEfficiencyMetric,
     TaskCompletionConfig,
     TaskCompletionMetric,
     ToolCorrectnessConfig,
@@ -220,6 +224,10 @@ __all__ = [
     "ToolCorrectnessConfig",
     "TaskCompletionMetric",
     "TaskCompletionConfig",
+    "StepEfficiencyMetric",
+    "StepEfficiencyConfig",
+    "PlanAdherenceMetric",
+    "PlanAdherenceConfig",
     # Quality metrics
     "HallucinationMetric",
     "HallucinationConfig",

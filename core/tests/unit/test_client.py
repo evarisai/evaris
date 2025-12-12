@@ -583,7 +583,7 @@ class TestEvarisClientMethods:
 
         with patch("evaris.client.request_with_retry") as mock_retry:
             mock_response = MagicMock()
-            mock_response.json.return_value = {"items": [mock_assess_response]}
+            mock_response.json.return_value = {"evaluations": [mock_assess_response]}
             mock_retry.return_value = mock_response
 
             async with client:
@@ -598,7 +598,7 @@ class TestEvarisClientMethods:
 
         with patch("evaris.client.request_with_retry_sync") as mock_retry:
             mock_response = MagicMock()
-            mock_response.json.return_value = {"items": [mock_assess_response]}
+            mock_response.json.return_value = {"evaluations": [mock_assess_response]}
             mock_retry.return_value = mock_response
 
             with client:

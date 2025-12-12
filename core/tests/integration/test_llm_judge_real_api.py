@@ -22,9 +22,8 @@ from dotenv import load_dotenv
 
 from evaris import evaluate
 
-# Use legacy classes for tests that expect direct provider support
-from evaris.metrics.llm_judge import LLMJudgeConfig
-from evaris.metrics.llm_judge import LLMJudgeLegacy as LLMJudgeMetric
+# Use the LLMJudge classes
+from evaris.metrics.llm_judge import LLMJudgeConfig, LLMJudgeMetric
 
 # Load .env file from package root
 env_path = Path(__file__).parent.parent.parent / ".env"

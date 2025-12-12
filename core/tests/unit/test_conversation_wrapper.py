@@ -210,7 +210,11 @@ class TestIntegrationWithEvaluate:
         )
 
         result = evaluate(
-            task=wrapped, data=goldens, metrics=[ExactMatchMetric()], name="Conversation Agent Test"
+            task=wrapped,
+            data=goldens,
+            metrics=[ExactMatchMetric()],
+            categories=["none"],  # Disable default categories
+            name="Conversation Agent Test",
         )
 
         assert result.total == 2
@@ -227,7 +231,11 @@ class TestIntegrationWithEvaluate:
         factory = ConversationAgentFactory(MockConversationAgent)
 
         result = evaluate(
-            task=factory, data=goldens, metrics=[ExactMatchMetric()], name="Factory Test"
+            task=factory,
+            data=goldens,
+            metrics=[ExactMatchMetric()],
+            categories=["none"],  # Disable default categories
+            name="Factory Test",
         )
 
         assert result.total == 2
@@ -249,6 +257,7 @@ class TestIntegrationWithEvaluate:
             task=wrapped,
             data=goldens_with_count,
             metrics=[ExactMatchMetric()],
+            categories=["none"],  # Disable default categories
             name="State Pollution Test",
         )
 
