@@ -154,6 +154,7 @@ from evaris.metrics.rag import (
 
 # Safety metrics
 from evaris.metrics.safety import (
+    AttackSeverity,
     BiasConfig,
     BiasMetric,
     MisuseConfig,
@@ -162,10 +163,13 @@ from evaris.metrics.safety import (
     NonAdviceMetric,
     PIILeakageConfig,
     PIILeakageMetric,
+    RedTeamingConfig,
+    RedTeamingMetric,
     RoleViolationConfig,
     RoleViolationMetric,
     ToxicityConfig,
     ToxicityMetric,
+    VulnerabilityCategory,
 )
 from evaris.metrics.semantic_similarity import (
     SemanticSimilarityConfig,
@@ -207,6 +211,10 @@ __all__ = [
     "MisuseConfig",
     "RoleViolationMetric",
     "RoleViolationConfig",
+    "RedTeamingMetric",
+    "RedTeamingConfig",
+    "VulnerabilityCategory",
+    "AttackSeverity",
     # Agentic metrics
     "ToolCorrectnessMetric",
     "ToolCorrectnessConfig",

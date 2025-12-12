@@ -84,6 +84,9 @@ def _register_metrics() -> None:
         PIILeakageMetric,
         RAGASConfig,
         RAGASMetric,
+        # Red teaming metric
+        RedTeamingConfig,
+        RedTeamingMetric,
         RoleAdherenceConfig,
         RoleAdherenceMetric,
         RoleViolationConfig,
@@ -122,6 +125,7 @@ def _register_metrics() -> None:
             "role_violation": (RoleViolationMetric, RoleViolationConfig),
             "non_advice": (NonAdviceMetric, NonAdviceConfig),
             "misuse": (MisuseMetric, MisuseConfig),
+            "red_teaming": (RedTeamingMetric, RedTeamingConfig),
             # Quality metrics
             "g_eval": (GEvalMetric, GEvalConfig),
             "summarization": (SummarizationMetric, SummarizationConfig),
@@ -195,6 +199,11 @@ METRIC_CATEGORIES: dict[str, list[str]] = {
         "role_violation",
         "non_advice",
         "misuse",
+        "red_teaming",
+    ],
+    # Red teaming for adversarial attack detection
+    "red_teaming": [
+        "red_teaming",
     ],
     # Agentic/tool-using agent metrics
     "agentic": [
@@ -428,7 +437,8 @@ def describe_category(category: str) -> str:
         "default": "Baseline evaluation: task completion and hallucination detection",
         "rag": "RAG evaluation: faithfulness, relevancy, and context quality",
         "safety": "Safety evaluation: hallucination, toxicity, bias, PII leakage",
-        "strict_safety": "Comprehensive safety: all safety metrics plus role violation",
+        "strict_safety": "Comprehensive safety: all safety metrics plus red teaming",
+        "red_teaming": "Adversarial attack detection: prompt injection, jailbreaks",
         "agentic": "Agent evaluation: tool usage and task completion",
         "conversational": "Conversation evaluation: relevancy, role adherence, knowledge retention",
         "quality": "Quality evaluation: summarization quality",

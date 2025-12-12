@@ -7,12 +7,19 @@ This module provides metrics for evaluating LLM safety:
 - NonAdviceMetric: Ensures no unauthorized professional advice
 - MisuseMetric: Detects potential misuse patterns
 - RoleViolationMetric: Detects persona/role violations
+- RedTeamingMetric: Detects adversarial attacks (prompt injection, jailbreaks, etc.)
 """
 
 from evaris.metrics.safety.bias import BiasConfig, BiasMetric
 from evaris.metrics.safety.misuse import MisuseConfig, MisuseMetric
 from evaris.metrics.safety.non_advice import NonAdviceConfig, NonAdviceMetric
 from evaris.metrics.safety.pii_leakage import PIILeakageConfig, PIILeakageMetric
+from evaris.metrics.safety.red_teaming import (
+    AttackSeverity,
+    RedTeamingConfig,
+    RedTeamingMetric,
+    VulnerabilityCategory,
+)
 from evaris.metrics.safety.role_violation import RoleViolationConfig, RoleViolationMetric
 from evaris.metrics.safety.toxicity import ToxicityConfig, ToxicityMetric
 
@@ -29,4 +36,8 @@ __all__ = [
     "MisuseConfig",
     "RoleViolationMetric",
     "RoleViolationConfig",
+    "RedTeamingMetric",
+    "RedTeamingConfig",
+    "VulnerabilityCategory",
+    "AttackSeverity",
 ]
