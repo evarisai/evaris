@@ -18,7 +18,9 @@
 			}
 		}
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "tsup src/index.ts --format esm,cjs --dts",
 		"dev": "tsup src/index.ts --format esm,cjs --dts --watch",
@@ -26,14 +28,20 @@
 		"lint": "biome lint src/",
 		"typecheck": "tsc --noEmit"
 	},
-	"dependencies": {},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.8",
+		"@types/node": "^25.0.1",
 		"tsup": "^8.0.0",
 		"typescript": "^5.9.3",
 		"vitest": "^3.0.0"
 	},
-	"keywords": ["evaris", "ai", "evaluation", "llm", "observability"],
+	"keywords": [
+		"evaris",
+		"ai",
+		"evaluation",
+		"llm",
+		"observability"
+	],
 	"author": "Evaris AI",
 	"license": "MIT",
 	"repository": {
