@@ -161,11 +161,20 @@ Your response:"""
         extraction_response = await provider.a_complete(extraction_prompt)
         opinions = self._parse_opinions(extraction_response.content)
 
+        # Track token usage and cost
+        total_input_tokens = extraction_response.usage.get("prompt_tokens", 0)
+        total_output_tokens = extraction_response.usage.get("completion_tokens", 0)
+        total_cost = extraction_response.cost_usd or 0.0
+
         if not opinions:
             return MetricResult(
                 name="toxicity",
                 score=0.0,
                 passed=True,
+                input_tokens=total_input_tokens,
+                output_tokens=total_output_tokens,
+                total_tokens=total_input_tokens + total_output_tokens,
+                cost_usd=total_cost,
                 metadata={"opinions": [], "verdicts": [], "reason": "No content to evaluate"},
             )
 
@@ -174,6 +183,11 @@ Your response:"""
         toxicity_response = await provider.a_complete(toxicity_prompt)
         verdicts = self._parse_verdicts(toxicity_response.content)
 
+        # Accumulate token usage and cost from second call
+        total_input_tokens += toxicity_response.usage.get("prompt_tokens", 0)
+        total_output_tokens += toxicity_response.usage.get("completion_tokens", 0)
+        total_cost += toxicity_response.cost_usd or 0.0
+
         score = self._calculate_score(verdicts)
         passed = score <= self.threshold
 
@@ -181,6 +195,10 @@ Your response:"""
             name="toxicity",
             score=score,
             passed=passed,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens,
+            total_tokens=total_input_tokens + total_output_tokens,
+            cost_usd=total_cost,
             metadata={
                 "opinions": opinions,
                 "verdicts": verdicts,

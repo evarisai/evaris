@@ -249,6 +249,18 @@ class MetricResult(BaseModel):
         ),
     )
 
+    # Cost tracking fields (for LLM-based metrics)
+    input_tokens: int | None = Field(
+        default=None, description="Number of input/prompt tokens used by LLM"
+    )
+    output_tokens: int | None = Field(
+        default=None, description="Number of output/completion tokens used by LLM"
+    )
+    total_tokens: int | None = Field(default=None, description="Total tokens used (input + output)")
+    cost_usd: float | None = Field(
+        default=None, description="Cost in USD for this metric evaluation"
+    )
+
 
 class TestResult(BaseModel):
     """Result from evaluating a single test case.
@@ -269,6 +281,12 @@ class TestResult(BaseModel):
     metrics: list[MetricResult] = Field(..., description="Metric results")
     latency_ms: float = Field(..., ge=0.0, description="Execution time in milliseconds")
     error: str | None = Field(None, description="Error message if execution failed")
+
+    # Cost tracking (aggregated from all metrics)
+    total_tokens: int | None = Field(
+        default=None, description="Total tokens used across all metrics"
+    )
+    cost_usd: float | None = Field(default=None, description="Total cost in USD for this test case")
 
 
 class EvalResult(BaseModel):
@@ -300,6 +318,15 @@ class EvalResult(BaseModel):
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional evaluation metadata"
     )
+
+    # Cost tracking (aggregated from all test results)
+    total_tokens: int | None = Field(
+        default=None, description="Total tokens used across entire evaluation"
+    )
+    total_cost_usd: float | None = Field(
+        default=None, description="Total cost in USD for entire evaluation"
+    )
+
     # Baseline comparison fields
     baseline_results: dict[str, "EvalResult"] | None = Field(
         None, description="Evaluation results for each baseline (baseline_name -> EvalResult)"

@@ -30,6 +30,43 @@ DEFAULT_MODELS = {
     "coding": "anthropic/claude-3.5-sonnet",  # Best for code
 }
 
+# Model pricing per million tokens (USD) - Updated Dec 2025
+# Source: https://openrouter.ai/docs#models
+MODEL_PRICING: dict[str, dict[str, float]] = {
+    # Anthropic Claude models
+    "anthropic/claude-3.5-sonnet": {"input": 3.0, "output": 15.0},
+    "anthropic/claude-3.5-sonnet-20241022": {"input": 3.0, "output": 15.0},
+    "anthropic/claude-3-5-sonnet": {"input": 3.0, "output": 15.0},
+    "anthropic/claude-3-haiku": {"input": 0.25, "output": 1.25},
+    "anthropic/claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},
+    "anthropic/claude-3-opus": {"input": 15.0, "output": 75.0},
+    "anthropic/claude-3-sonnet": {"input": 3.0, "output": 15.0},
+    # OpenAI GPT models
+    "openai/gpt-4o": {"input": 2.5, "output": 10.0},
+    "openai/gpt-4o-2024-11-20": {"input": 2.5, "output": 10.0},
+    "openai/gpt-4o-mini": {"input": 0.15, "output": 0.6},
+    "openai/gpt-4o-mini-2024-07-18": {"input": 0.15, "output": 0.6},
+    "openai/gpt-4-turbo": {"input": 10.0, "output": 30.0},
+    "openai/gpt-4": {"input": 30.0, "output": 60.0},
+    "openai/gpt-3.5-turbo": {"input": 0.5, "output": 1.5},
+    # Google Gemini models
+    "google/gemini-pro": {"input": 0.125, "output": 0.375},
+    "google/gemini-pro-1.5": {"input": 1.25, "output": 5.0},
+    "google/gemini-flash-1.5": {"input": 0.075, "output": 0.3},
+    # Meta Llama models
+    "meta-llama/llama-3.1-405b-instruct": {"input": 2.7, "output": 2.7},
+    "meta-llama/llama-3.1-70b-instruct": {"input": 0.52, "output": 0.75},
+    "meta-llama/llama-3.1-8b-instruct": {"input": 0.055, "output": 0.055},
+    "meta-llama/llama-3-70b-instruct": {"input": 0.52, "output": 0.75},
+    # Mistral models
+    "mistralai/mistral-large": {"input": 2.0, "output": 6.0},
+    "mistralai/mistral-medium": {"input": 2.7, "output": 8.1},
+    "mistralai/mistral-small": {"input": 0.2, "output": 0.6},
+    "mistralai/mixtral-8x7b-instruct": {"input": 0.24, "output": 0.24},
+    # Default fallback for unknown models (conservative estimate)
+    "_default": {"input": 1.0, "output": 3.0},
+}
+
 
 class OpenRouterProvider(BaseLLMProvider):
     """OpenRouter LLM provider.
@@ -151,6 +188,33 @@ class OpenRouterProvider(BaseLLMProvider):
 
         return request
 
+    def _calculate_cost(
+        self,
+        model: str,
+        input_tokens: int,
+        output_tokens: int,
+    ) -> float:
+        """Calculate cost in USD based on model pricing and token usage.
+
+        Args:
+            model: Model identifier (e.g., "anthropic/claude-3.5-sonnet")
+            input_tokens: Number of prompt/input tokens
+            output_tokens: Number of completion/output tokens
+
+        Returns:
+            Cost in USD. Uses default pricing if model not in pricing table.
+        """
+        # Try exact match first, then fallback to default pricing
+        pricing = MODEL_PRICING.get(model)
+        if not pricing:
+            # Log unknown model for future addition
+            logger.debug(f"Unknown model pricing for {model}, using default rates")
+            pricing = MODEL_PRICING["_default"]
+
+        input_cost = (input_tokens / 1_000_000) * pricing["input"]
+        output_cost = (output_tokens / 1_000_000) * pricing["output"]
+        return input_cost + output_cost
+
     def _parse_response(self, response: dict[str, Any]) -> LLMResponse:
         """Parse OpenRouter API response."""
         choice = response.get("choices", [{}])[0]
@@ -174,13 +238,19 @@ class OpenRouterProvider(BaseLLMProvider):
                 )
 
         usage = response.get("usage", {})
+        model = response.get("model") or self.config.model or ""
+        input_tokens = usage.get("prompt_tokens", 0)
+        output_tokens = usage.get("completion_tokens", 0)
+
+        # Calculate cost based on model pricing
+        cost_usd = self._calculate_cost(model, input_tokens, output_tokens)
 
         return LLMResponse(
             content=content,
-            model=response.get("model") or self.config.model or "",
+            model=model,
             usage={
-                "prompt_tokens": usage.get("prompt_tokens", 0),
-                "completion_tokens": usage.get("completion_tokens", 0),
+                "prompt_tokens": input_tokens,
+                "completion_tokens": output_tokens,
                 "total_tokens": usage.get("total_tokens", 0),
             },
             tool_calls=parsed_tool_calls,
@@ -189,6 +259,7 @@ class OpenRouterProvider(BaseLLMProvider):
                 "provider": "openrouter",
                 "finish_reason": choice.get("finish_reason"),
             },
+            cost_usd=cost_usd,
         )
 
     def complete(

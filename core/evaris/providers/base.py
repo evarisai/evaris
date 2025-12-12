@@ -59,6 +59,10 @@ class LLMResponse(BaseModel):
     tool_calls: list[dict[str, Any]] | None = Field(None, description="Tool calls in the response")
     raw_response: dict[str, Any] | None = Field(None, description="Raw provider response")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    cost_usd: float | None = Field(
+        default=None,
+        description="Estimated cost in USD for this completion (calculated from token usage)",
+    )
 
     @property
     def has_tool_calls(self) -> bool:
