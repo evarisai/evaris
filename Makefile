@@ -74,7 +74,7 @@ lint-python:
 	cd server && uv run black --check . && uv run ruff check .
 
 lint-web:
-	cd web && pnpm lint
+	cd web && pnpm lint --fix
 
 # Type checking
 typecheck: typecheck-python typecheck-web

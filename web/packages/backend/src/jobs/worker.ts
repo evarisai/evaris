@@ -2,6 +2,7 @@ import type { Job } from "pg-boss"
 import { prisma } from "../lib/db"
 import { getBoss, EVAL_QUEUE, closeQueue, type EvalJobData } from "../lib/queue"
 import { forwardToServer } from "../lib/server-proxy"
+import { downloadFile } from "../lib/storage"
 
 console.log("Starting Evaris Background Worker...")
 
@@ -69,48 +70,117 @@ interface EvaluateResponse {
 	metadata?: Record<string, unknown>
 }
 
-async function loadDatasetItems(
-	datasetId: string,
-	fileUrl: string | null
-): Promise<TestCasePayload[]> {
-	// TODO: Implement proper dataset file loading from storage (Supabase Storage/S3)
-	// For now, if fileUrl exists, we'd fetch and parse it
-	// This is a placeholder until dataset storage is fully implemented
+interface ParseError {
+	line: number
+	error: string
+}
 
-	if (fileUrl) {
+const PARSE_ERROR_THRESHOLD = 0.1 // Fail if more than 10% of lines have parse errors
+
+interface DatasetFileInfo {
+	id: string
+	name: string
+	filePath: string
+}
+
+async function loadFileItems(datasetId: string, file: DatasetFileInfo): Promise<TestCasePayload[]> {
+	const text = await downloadFile(file.filePath)
+
+	// Parse JSONL format (one JSON object per line)
+	const items: TestCasePayload[] = []
+	const parseErrors: ParseError[] = []
+	const lines = text.split("\n")
+	const nonEmptyLines = lines.filter((line) => line.trim())
+
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i]
+		if (!line.trim()) continue
+
 		try {
-			const response = await fetch(fileUrl)
-			if (!response.ok) {
-				throw new Error(`Failed to fetch dataset: ${response.status}`)
-			}
-			const text = await response.text()
+			const data = JSON.parse(line) as Record<string, unknown>
+			items.push({
+				input: data.input ?? data.question ?? data.prompt ?? "",
+				expected: data.expected ?? data.answer ?? data.target ?? null,
+				actual_output: data.actual_output ?? data.output ?? data.response ?? "",
+				context: data.context ?? data.contexts ?? null,
+				metadata: {
+					...((data.metadata as Record<string, unknown>) ?? {}),
+					_sourceFile: file.name,
+					_sourceFileId: file.id,
+				},
+			})
+		} catch (parseError) {
+			const errorMessage =
+				parseError instanceof SyntaxError
+					? `Invalid JSON syntax: ${parseError.message}`
+					: parseError instanceof Error
+						? parseError.message
+						: "Unknown parsing error"
 
-			// Parse JSONL format (one JSON object per line)
-			const items: TestCasePayload[] = []
-			for (const line of text.split("\n")) {
-				if (!line.trim()) continue
-				try {
-					const data = JSON.parse(line) as Record<string, unknown>
-					items.push({
-						input: data.input ?? data.question ?? data.prompt ?? "",
-						expected: data.expected ?? data.answer ?? data.target ?? null,
-						actual_output: data.actual_output ?? data.output ?? data.response ?? "",
-						context: data.context ?? data.contexts ?? null,
-						metadata: (data.metadata as Record<string, unknown>) ?? {},
-					})
-				} catch {
-					console.warn(`Skipping invalid JSON line in dataset ${datasetId}`)
-				}
-			}
-			return items
-		} catch (error) {
-			console.error(`Failed to load dataset from ${fileUrl}:`, error)
-			throw new Error(`Dataset file not accessible: ${datasetId}`)
+			parseErrors.push({ line: i + 1, error: errorMessage })
+			console.error(
+				`[Dataset ${datasetId}] [File ${file.name}] Failed to parse line ${i + 1}: ${errorMessage}`
+			)
 		}
 	}
 
-	// No fileUrl - dataset storage not implemented yet
-	throw new Error(`Dataset ${datasetId} has no file URL. Dataset storage is not yet implemented.`)
+	// Fail if too many parse errors in this file
+	if (parseErrors.length > 0 && nonEmptyLines.length > 0) {
+		const errorRate = parseErrors.length / nonEmptyLines.length
+		if (errorRate > PARSE_ERROR_THRESHOLD) {
+			throw new Error(
+				`File ${file.name} has too many parsing errors: ${parseErrors.length} of ${nonEmptyLines.length} lines (${(errorRate * 100).toFixed(1)}%). ` +
+					`First error on line ${parseErrors[0].line}: ${parseErrors[0].error}`
+			)
+		}
+
+		console.warn(
+			`[Dataset ${datasetId}] [File ${file.name}] Skipped ${parseErrors.length} invalid lines. ` +
+				`First error on line ${parseErrors[0].line}: ${parseErrors[0].error}`
+		)
+	}
+
+	return items
+}
+
+async function loadDatasetItems(
+	datasetId: string,
+	files: DatasetFileInfo[]
+): Promise<TestCasePayload[]> {
+	if (!files || files.length === 0) {
+		throw new Error(`Dataset ${datasetId} has no files. Please upload dataset files first.`)
+	}
+
+	try {
+		// Load all files and combine items
+		const allItems: TestCasePayload[] = []
+
+		for (const file of files) {
+			console.log(`[Dataset ${datasetId}] Loading file: ${file.name}`)
+			const fileItems = await loadFileItems(datasetId, file)
+			console.log(`[Dataset ${datasetId}] Loaded ${fileItems.length} items from ${file.name}`)
+			allItems.push(...fileItems)
+		}
+
+		if (allItems.length === 0) {
+			throw new Error(
+				`Dataset ${datasetId} contains no valid test cases across ${files.length} files`
+			)
+		}
+
+		return allItems
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			(error.message.includes("no valid test cases") || error.message.includes("parsing errors"))
+		) {
+			throw error
+		}
+		console.error(`Failed to load dataset ${datasetId}:`, error)
+		throw new Error(
+			`Failed to load dataset files: ${error instanceof Error ? error.message : "Unknown error"}`
+		)
+	}
 }
 
 async function processEvalJob(job: Job<EvalJobData>) {
@@ -129,19 +199,24 @@ async function processEvalJob(job: Job<EvalJobData>) {
 
 		const organizationId = evalRecord.organizationId
 
-		// Load dataset
+		// Load dataset with files
 		const dataset = await prisma.dataset.findUnique({
 			where: { id: datasetId },
+			include: {
+				files: {
+					select: { id: true, name: true, filePath: true },
+				},
+			},
 		})
 
 		if (!dataset) {
 			throw new Error(`Dataset ${datasetId} not found`)
 		}
 
-		console.log(`Loading dataset ${datasetId}...`)
+		console.log(`Loading dataset ${datasetId} with ${dataset.files.length} files...`)
 
-		// Load test cases from dataset file
-		const testCases = await loadDatasetItems(datasetId, dataset.fileUrl)
+		// Load test cases from all dataset files
+		const testCases = await loadDatasetItems(datasetId, dataset.files)
 
 		if (testCases.length === 0) {
 			throw new Error("Dataset has no items to evaluate")
@@ -180,12 +255,27 @@ async function processEvalJob(job: Job<EvalJobData>) {
 		console.log(`Evaluation server returned status: ${response.status}`)
 
 		// Update the eval record with results from the server
-		const summary = response.summary || {
+		// Log warning if server returned incomplete response
+		if (!response.summary) {
+			console.warn(
+				`[Evaluation Job ${job.id}] Server returned response without summary - using fallback`,
+				{
+					evalId,
+					responseStatus: response.status,
+					hasResults: Boolean(response.results),
+					resultsCount: response.results?.length ?? 0,
+				}
+			)
+		}
+
+		const summary = response.summary ?? {
 			total: testCases.length,
 			passed: 0,
 			failed: testCases.length,
 			accuracy: 0,
 		}
+
+		const duration = Date.now() - startTime
 
 		await prisma.eval.update({
 			where: { id: evalId },
@@ -197,14 +287,15 @@ async function processEvalJob(job: Job<EvalJobData>) {
 				accuracy: summary.accuracy,
 				summary: summary,
 				completedAt: new Date(),
+				durationMs: duration,
 			},
 		})
 
-		// Store individual test results if available
+		// Store individual test results using batch insert for better performance
 		if (response.results && response.results.length > 0) {
-			for (const result of response.results) {
-				await prisma.testResult.create({
-					data: {
+			try {
+				await prisma.testResult.createMany({
+					data: response.results.map((result) => ({
 						id: result.id,
 						evalId: evalId,
 						input: result.input as object,
@@ -215,14 +306,21 @@ async function processEvalJob(job: Job<EvalJobData>) {
 						latencyMs: result.latency_ms,
 						error: result.error,
 						metadata: (result.metadata ?? {}) as object,
-					},
+					})),
+					skipDuplicates: true,
 				})
+				console.log(`[Evaluation Job ${job.id}] Stored ${response.results.length} test results`)
+			} catch (storageError) {
+				// Log but don't fail the job - the eval itself succeeded
+				console.error(
+					`[Evaluation Job ${job.id}] Failed to store test results:`,
+					storageError instanceof Error ? storageError.message : storageError
+				)
 			}
 		}
 
-		const duration = Date.now() - startTime
 		console.log(
-			`Evaluation completed in ${duration}ms - Total: ${summary.total}, Passed: ${summary.passed}, Failed: ${summary.failed}`
+			`[Evaluation Job ${job.id}] Completed in ${duration}ms - Total: ${summary.total}, Passed: ${summary.passed}, Failed: ${summary.failed}`
 		)
 
 		return {
@@ -235,17 +333,36 @@ async function processEvalJob(job: Job<EvalJobData>) {
 		}
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : "Unknown error"
+		const errorStack = error instanceof Error ? error.stack : undefined
+		const duration = Date.now() - startTime
 
-		console.error(`Evaluation failed: ${errorMessage}`)
+		console.error(`[Evaluation Job ${job.id}] Evaluation failed`, {
+			evalId,
+			datasetId,
+			projectId,
+			error: errorMessage,
+			stack: errorStack,
+			duration,
+		})
 
-		await prisma.eval
-			.update({
+		// Store error message in database so users can see what failed
+		try {
+			await prisma.eval.update({
 				where: { id: evalId },
-				data: { status: "FAILED" },
+				data: {
+					status: "FAILED",
+					error: errorMessage.substring(0, 1000), // Truncate for safety
+					completedAt: new Date(),
+					durationMs: duration,
+				},
 			})
-			.catch((dbError) => {
-				console.error("Failed to update eval status:", dbError)
+		} catch (dbError) {
+			console.error(`[Evaluation Job ${job.id}] Failed to update eval status:`, {
+				evalId,
+				originalError: errorMessage,
+				dbError: dbError instanceof Error ? dbError.message : String(dbError),
 			})
+		}
 
 		throw error
 	}

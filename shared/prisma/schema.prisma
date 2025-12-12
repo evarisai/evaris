@@ -244,9 +244,10 @@ model user {
   createdProjects    Project[]    @relation("ProjectCreator")
   createdExperiments Experiment[] @relation("ExperimentCreator")
   createdEvals       Eval[]       @relation("EvalCreator")
-  createdApiKeys     ApiKey[]     @relation("ApiKeyCreator")
-  sentInvitations    Invitation[] @relation("InvitationSender")
-  auditLogs          AuditLog[]   @relation("AuditLogActor")
+  createdApiKeys     ApiKey[]       @relation("ApiKeyCreator")
+  sentInvitations    Invitation[]   @relation("InvitationSender")
+  auditLogs          AuditLog[]     @relation("AuditLogActor")
+  uploadedDatasetFiles DatasetFile[] @relation("DatasetFileUploader")
 
   @@map("user")
 }
@@ -334,15 +335,11 @@ model Project {
 
 // Datasets for evaluation
 model Dataset {
-  id          String        @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   description String?
-  format      DatasetFormat @default(JSONL)
-  itemCount   Int           @default(0)
-  fileUrl     String? // URL to the stored dataset file (e.g., S3, GCS)
-  fileSize    Int? // Size in bytes
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Belongs to organization (tenant)
   organizationId String
@@ -351,10 +348,35 @@ model Dataset {
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  // Files in this dataset
+  files DatasetFile[]
   evals Eval[]
 
   @@index([organizationId])
   @@index([projectId])
+}
+
+model DatasetFile {
+  id        String   @id @default(cuid())
+  name      String // Original filename
+  format    DatasetFormat @default(JSONL)
+  itemCount Int      @default(0) // Number of items/rows in file
+  filePath  String // Storage path for download
+  fileSize  Int // Size in bytes
+  mimeType  String? // MIME type
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Who uploaded this file
+  uploadedById String?
+  uploadedBy   user?   @relation("DatasetFileUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  // Parent dataset
+  datasetId String
+  dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+
+  @@index([datasetId])
+  @@map("dataset_file")
 }
 
 enum DatasetFormat {
@@ -416,6 +438,7 @@ model Eval {
   failed   Int? // Failed test cases
   accuracy Float? // Pass rate (0.0 - 1.0)
   summary  Json? // Detailed summary with per-metric stats
+  error    String? // Error message if evaluation failed
   metadata Json       @default("{}")
 
   // Progress tracking for real-time updates

@@ -27,19 +27,29 @@ export const datasetsRouter = router({
 					skip: input?.offset ?? 0,
 					include: {
 						project: { select: { name: true } },
-						_count: { select: { evals: true } },
+						_count: { select: { evals: true, files: true } },
+						files: {
+							select: { id: true, itemCount: true },
+						},
 					},
 				}),
 				ctx.prisma.dataset.count({ where }),
 			])
 
-			return { datasets, total }
+			// Calculate total item count across all files
+			const datasetsWithCounts = datasets.map((dataset) => ({
+				...dataset,
+				totalItems: dataset.files.reduce((sum, file) => sum + file.itemCount, 0),
+				fileCount: dataset._count.files,
+			}))
+
+			return { datasets: datasetsWithCounts, total }
 		}),
 
 	getById: organizationProcedure
 		.input(z.object({ id: z.string() }))
 		.query(async ({ ctx, input }) => {
-			return ctx.prisma.dataset.findUnique({
+			const dataset = await ctx.prisma.dataset.findUnique({
 				where: {
 					id: input.id,
 					organizationId: ctx.activeOrganization.id,
@@ -47,8 +57,29 @@ export const datasetsRouter = router({
 				include: {
 					project: true,
 					evals: { orderBy: { createdAt: "desc" }, take: 10 },
+					files: {
+						orderBy: { createdAt: "desc" },
+						include: {
+							uploadedBy: {
+								select: { id: true, name: true, email: true, image: true },
+							},
+						},
+					},
 				},
 			})
+
+			if (!dataset) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Dataset not found",
+				})
+			}
+
+			return {
+				...dataset,
+				totalItems: dataset.files.reduce((sum, file) => sum + file.itemCount, 0),
+				fileCount: dataset.files.length,
+			}
 		}),
 
 	create: organizationProcedure
@@ -57,7 +88,6 @@ export const datasetsRouter = router({
 				name: z.string().min(1),
 				description: z.string().optional(),
 				projectId: z.string(),
-				itemCount: z.number().default(0),
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -80,7 +110,6 @@ export const datasetsRouter = router({
 					name: input.name,
 					description: input.description,
 					projectId: input.projectId,
-					itemCount: input.itemCount,
 					organizationId: ctx.activeOrganization.id,
 				},
 			})
@@ -92,7 +121,6 @@ export const datasetsRouter = router({
 				id: z.string(),
 				name: z.string().min(1).optional(),
 				description: z.string().optional(),
-				itemCount: z.number().optional(),
 			})
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -115,5 +143,53 @@ export const datasetsRouter = router({
 					organizationId: ctx.activeOrganization.id,
 				},
 			})
+		}),
+
+	// File operations
+	deleteFile: organizationProcedure
+		.input(z.object({ fileId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			// First verify the file belongs to a dataset in this org
+			const file = await ctx.prisma.datasetFile.findFirst({
+				where: { id: input.fileId },
+				include: { dataset: true },
+			})
+
+			if (!file || file.dataset.organizationId !== ctx.activeOrganization.id) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "File not found",
+				})
+			}
+
+			return ctx.prisma.datasetFile.delete({
+				where: { id: input.fileId },
+			})
+		}),
+
+	getFileContent: organizationProcedure
+		.input(z.object({ fileId: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const file = await ctx.prisma.datasetFile.findFirst({
+				where: { id: input.fileId },
+				include: { dataset: true },
+			})
+
+			if (!file || file.dataset.organizationId !== ctx.activeOrganization.id) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "File not found",
+				})
+			}
+
+			// Return file metadata - actual content fetching is done via signed URL
+			return {
+				id: file.id,
+				name: file.name,
+				format: file.format,
+				filePath: file.filePath,
+				fileSize: file.fileSize,
+				itemCount: file.itemCount,
+			}
 		}),
 })
