@@ -78,9 +78,9 @@ export async function getQueueStats() {
 	}
 }
 
-export async function getJobById(jobId: string) {
+export async function getJobById(queue: string, jobId: string) {
 	const b = await getBoss()
-	return b.getJobById(jobId)
+	return b.getJobById(queue, jobId)
 }
 
 export async function closeQueue() {

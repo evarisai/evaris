@@ -851,7 +851,9 @@ def evaluate(
     name: str,
     task: AgentFunction | AsyncAgentFunction | Any,
     data: DatasetInput,
-    metrics: list[str | Any],
+    metrics: list[str | Any] | None = None,
+    categories: list[str] | None = None,
+    include_default: bool = True,
     max_concurrency: int | None = None,
     baselines: bool | BaselineConfig = True,
     compliance_config: Any | None = None,
@@ -880,12 +882,27 @@ def evaluate(
               - List of TestCase objects
               - Path to a dataset file (not yet implemented)
         metrics: List of metrics to apply. Can be:
-                 - Metric names (str): "exact_match", "latency"
-                 - Metric instances: LLMJudgeMetric(), SemanticSimilarityMetric()
+                 - Metric names (str): "exact_match", "faithfulness"
+                 - Metric instances: GEvalMetric(), FaithfulnessMetric()
                  - Mix of both
+                 If None, uses metrics from categories (default category if none specified).
+        categories: List of metric categories to include. Available categories:
+                    - "default": task_completion, hallucination (always included unless disabled)
+                    - "rag": faithfulness, answer_relevancy, context_precision, context_recall
+                    - "safety": hallucination, toxicity, bias, pii_leakage
+                    - "strict_safety": all safety metrics including role_violation, misuse
+                    - "agentic": tool_correctness, task_completion
+                    - "conversational": conversation_relevancy, role_adherence, etc.
+                    - "quality": summarization
+                    - "nlp": bleu, rouge, meteor
+                    - "minimal": exact_match only
+                    - "none": disable default category
+        include_default: Whether to include "default" category automatically (default: True).
+                        Set to False or use categories=["none"] to disable.
         max_concurrency: Maximum concurrent test executions (default: 10).
                         Only used if async execution is chosen. Set to None
                         to force sync execution.
+        baselines: Enable baseline comparison (default: True).
         compliance_config: Optional ABC compliance configuration. If provided,
                           runs compliance checks and reports warnings.
         enable_tracing: Enable OpenTelemetry tracing (overrides EVARIS_TRACING env var)
@@ -895,58 +912,85 @@ def evaluate(
         EvalResult containing aggregated results and individual test results
 
     Raises:
-        ValueError: If data is empty or metrics are invalid
+        ValueError: If data is empty or no metrics specified
         TypeError: If required arguments are missing
         ABCViolationError: If compliance_config.strict_mode=True and critical violations found
 
     Example:
-        >>> # Async agent - automatically uses parallel execution
-        >>> async def my_async_agent(query: str) -> str:
-        ...     await asyncio.sleep(0.1)
-        ...     return f"Hello {query}"
-        ...
+        >>> # Using categories for easy setup
         >>> result = evaluate(
-        ...     name="async-greeting-test",
-        ...     task=my_async_agent,
-        ...     data=[{"input": "World", "expected": "Hello World"}],
-        ...     metrics=["exact_match", "latency"]
+        ...     name="rag-eval",
+        ...     task=my_rag_agent,
+        ...     data=test_cases,
+        ...     categories=["rag", "safety"],  # Predefined metric bundles
         ... )
 
-        >>> # Sync agent - automatically uses sequential execution
-        >>> def my_sync_agent(query: str) -> str:
-        ...     return f"Hello {query}"
-        ...
+        >>> # Mix categories with custom metrics
         >>> result = evaluate(
-        ...     name="sync-greeting-test",
-        ...     task=my_sync_agent,
-        ...     data=[{"input": "World", "expected": "Hello World"}],
-        ...     metrics=["exact_match"]
+        ...     name="custom-eval",
+        ...     task=my_agent,
+        ...     data=test_cases,
+        ...     categories=["safety"],
+        ...     metrics=[GEvalMetric(config=GEvalConfig(criteria="Be helpful"))],
         ... )
 
-        >>> # Force async execution for sync agent (useful for I/O-bound agents)
-        >>> result = evaluate_async(
-        ...     name="forced-async",
-        ...     task=my_sync_agent,
+        >>> # Disable default category
+        >>> result = evaluate(
+        ...     name="minimal-eval",
+        ...     task=my_agent,
         ...     data=test_cases,
-        ...     metrics=["exact_match"],
-        ...     max_concurrency=10
+        ...     categories=["minimal"],
+        ...     include_default=False,
         ... )
 
-        >>> # Force sync execution for async agent
-        >>> result = evaluate_sync(
-        ...     name="forced-sync",
-        ...     task=my_sync_agent,
+        >>> # Traditional usage with explicit metrics
+        >>> result = evaluate(
+        ...     name="explicit-eval",
+        ...     task=my_agent,
         ...     data=test_cases,
-        ...     metrics=["exact_match"]
+        ...     metrics=["exact_match", "latency"],
+        ...     include_default=False,
         ... )
     """
     from evaris._async_helpers import _has_async_metrics, _is_async_agent
+    from evaris.categories import resolve_categories_to_metrics, validate_metrics_for_data
 
     debug = get_debug_logger()
 
+    # Resolve categories and metrics into final metric list
+    resolved_metrics = resolve_categories_to_metrics(
+        categories=categories,
+        metrics=metrics,
+        include_default=include_default,
+    )
+
+    if not resolved_metrics:
+        raise ValueError(
+            "No metrics specified. Either provide 'metrics' or 'categories', "
+            "or enable the default category with 'include_default=True'."
+        )
+
+    # Validate metrics against data and warn about missing metadata
+    runnable_metrics, warnings_list = validate_metrics_for_data(resolved_metrics, list(data))
+
+    if not runnable_metrics:
+        raise ValueError(
+            "No metrics can run with the provided data. "
+            f"All metrics require metadata that is missing. Warnings: {warnings_list}"
+        )
+
+    debug.log_intermediate(
+        "evaluate",
+        "Metrics resolved",
+        categories=categories,
+        total_metrics=len(resolved_metrics),
+        runnable_metrics=len(runnable_metrics),
+        skipped_metrics=len(resolved_metrics) - len(runnable_metrics),
+    )
+
     # Detect if agent or metrics are async
     is_async_agent = _is_async_agent(task)
-    has_async_metrics = _has_async_metrics(metrics)
+    has_async_metrics = _has_async_metrics(runnable_metrics)
 
     # Decide routing
     use_async = is_async_agent or has_async_metrics
@@ -981,7 +1025,7 @@ def evaluate(
                         name=name,
                         task=task,
                         data=data,
-                        metrics=metrics,
+                        metrics=runnable_metrics,
                         max_concurrency=max_concurrency or 10,
                         baselines=baselines,
                         compliance_config=compliance_config,
@@ -999,7 +1043,7 @@ def evaluate(
             name=name,
             task=task,
             data=data,
-            metrics=metrics,
+            metrics=runnable_metrics,
             baselines=baselines,
             compliance_config=compliance_config,
             enable_tracing=enable_tracing,

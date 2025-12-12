@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { getJobById, getQueueStats } from "../lib/queue"
+import { getJobById, getQueueStats, EVAL_QUEUE } from "../lib/queue"
 
 const jobsRoutes = new Hono()
 
@@ -12,7 +12,7 @@ jobsRoutes.get("/stats", async (c) => {
 // Get a specific job
 jobsRoutes.get("/:id", async (c) => {
 	const id = c.req.param("id")
-	const job = await getJobById(id)
+	const job = await getJobById(EVAL_QUEUE, id)
 
 	if (!job) {
 		return c.json({ error: "Job not found" }, 404)
