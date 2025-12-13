@@ -1,0 +1,89 @@
+name: 'Evaris Evaluation'
+description: 'Run LLM evaluations on pull requests using Evaris AI'
+author: 'Evaris AI'
+
+branding:
+  icon: 'check-circle'
+  color: 'purple'
+
+inputs:
+  api-key:
+    description: 'Evaris API key for authentication'
+    required: true
+  project-id:
+    description: 'Evaris project ID'
+    required: true
+  base-url:
+    description: 'Evaris API base URL (for self-hosted or local testing)'
+    required: false
+    default: ''
+  dataset-path:
+    description: 'Path to test dataset file (JSON or JSONL)'
+    required: false
+    default: ''
+  metrics:
+    description: 'Comma-separated list of metrics to run'
+    required: false
+    default: ''
+  categories:
+    description: 'Comma-separated list of metric categories'
+    required: false
+    default: 'default'
+  threshold:
+    description: 'Minimum pass rate threshold (0.0-1.0)'
+    required: false
+    default: '0.8'
+  fail-on-error:
+    description: 'Fail the workflow if evaluation fails threshold'
+    required: false
+    default: 'true'
+  post-comment:
+    description: 'Post evaluation results as PR comment'
+    required: false
+    default: 'true'
+  openrouter-api-key:
+    description: 'OpenRouter API key for LLM-as-judge metrics'
+    required: false
+    default: ''
+  max-concurrent:
+    description: 'Maximum concurrent evaluations'
+    required: false
+    default: '5'
+  timeout:
+    description: 'Evaluation timeout in seconds'
+    required: false
+    default: '300'
+
+outputs:
+  passed:
+    description: 'Whether evaluation passed the threshold'
+  accuracy:
+    description: 'Overall pass rate (0.0-1.0)'
+  total-tests:
+    description: 'Total number of test cases'
+  passed-tests:
+    description: 'Number of passed test cases'
+  failed-tests:
+    description: 'Number of failed test cases'
+  eval-id:
+    description: 'Evaris evaluation ID for reference'
+  report-url:
+    description: 'URL to full evaluation report in Evaris dashboard'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    EVARIS_API_KEY: ${{ inputs.api-key }}
+    EVARIS_PROJECT_ID: ${{ inputs.project-id }}
+    EVARIS_BASE_URL: ${{ inputs.base-url }}
+    DATASET_PATH: ${{ inputs.dataset-path }}
+    METRICS: ${{ inputs.metrics }}
+    CATEGORIES: ${{ inputs.categories }}
+    THRESHOLD: ${{ inputs.threshold }}
+    FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
+    POST_COMMENT: ${{ inputs.post-comment }}
+    OPENROUTER_API_KEY: ${{ inputs.openrouter-api-key }}
+    MAX_CONCURRENT: ${{ inputs.max-concurrent }}
+    TIMEOUT: ${{ inputs.timeout }}
+    GITHUB_TOKEN: ${{ github.token }}

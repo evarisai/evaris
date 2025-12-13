@@ -1,0 +1,30 @@
+[
+  {
+    "input": "What is the capital of France?",
+    "actual_output": "The capital of France is Paris. It is located in the north-central part of the country along the Seine River.",
+    "expected": "Paris",
+    "context": "France is a country in Western Europe. Paris is the capital and most populous city of France, with an estimated population of 2.1 million."
+  },
+  {
+    "input": "Explain what machine learning is in simple terms.",
+    "actual_output": "Machine learning is a type of artificial intelligence where computers learn patterns from data instead of being explicitly programmed. It's like teaching a computer by showing it examples rather than giving it step-by-step instructions.",
+    "expected": "Machine learning is a subset of AI that enables computers to learn from data without explicit programming."
+  },
+  {
+    "input": "What are the main benefits of regular exercise?",
+    "actual_output": "Regular exercise offers numerous benefits including improved cardiovascular health, stronger muscles and bones, better mental health and mood, weight management, and increased energy levels. It also helps reduce the risk of chronic diseases like diabetes and heart disease.",
+    "expected": "Physical and mental health improvements",
+    "context": "The WHO recommends at least 150 minutes of moderate-intensity aerobic activity per week for adults. Benefits include reduced risk of heart disease, stroke, type 2 diabetes, and some cancers."
+  },
+  {
+    "input": "How do I make a cup of tea?",
+    "actual_output": "To make tea: 1) Boil fresh water, 2) Place a tea bag in your cup, 3) Pour hot water over the tea bag, 4) Steep for 3-5 minutes depending on desired strength, 5) Remove the tea bag and add milk or sugar if desired.",
+    "expected": "Boil water, steep tea bag, add optional milk/sugar"
+  },
+  {
+    "input": "What is the speed of light?",
+    "actual_output": "The speed of light in a vacuum is approximately 299,792,458 meters per second, or about 186,282 miles per second. This is often rounded to 300,000 km/s for convenience.",
+    "expected": "299,792,458 meters per second",
+    "context": "The speed of light in vacuum, commonly denoted c, is a universal physical constant. Its exact value is 299,792,458 metres per second."
+  }
+]

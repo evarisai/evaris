@@ -1,0 +1,40 @@
+# Example GitHub Actions workflow for Evaris Evaluation
+# Copy this file to .github/workflows/evaris-eval.yml in your repository
+
+name: Evaris Evaluation
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+jobs:
+  evaluate:
+    name: Run LLM Evaluation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Evaris Evaluation
+        uses: evarisai/evaris/.github/actions/evaris-eval@main
+        with:
+          api-key: ${{ secrets.EVARIS_API_KEY }}
+          project-id: ${{ secrets.EVARIS_PROJECT_ID }}
+          dataset-path: 'tests/eval_dataset.json'
+          categories: 'default,safety'
+          threshold: '0.8'
+          fail-on-error: 'true'
+          post-comment: 'true'
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
+
+      - name: Check Results
+        if: always()
+        run: |
+          echo "Evaluation passed: ${{ steps.evaluate.outputs.passed }}"
+          echo "Accuracy: ${{ steps.evaluate.outputs.accuracy }}"
+          echo "Total tests: ${{ steps.evaluate.outputs.total-tests }}"
+          echo "Eval ID: ${{ steps.evaluate.outputs.eval-id }}"
+          echo "Report URL: ${{ steps.evaluate.outputs.report-url }}"
