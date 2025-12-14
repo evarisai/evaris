@@ -62,21 +62,66 @@ function Datasets() {
 		}
 	}, [createOpen])
 
-	// Create dataset mutation - fire and forget
+	// Create dataset mutation with optimistic update
 	const createDataset = trpc.datasets.create.useMutation({
-		onSuccess: (_data, variables) => {
-			toast({
-				title: "Dataset created",
-				description: `${variables.name} has been created successfully.`,
+		onMutate: async (newDataset) => {
+			await utils.datasets.list.cancel()
+			const previousData = utils.datasets.list.getData()
+			const projectName = projects?.find((p) => p.id === newDataset.projectId)?.name ?? "Project"
+			utils.datasets.list.setData(undefined, (old) => {
+				if (!old) return old
+				const optimisticDataset = {
+					id: `temp-${Date.now()}`,
+					name: newDataset.name,
+					description: newDataset.description ?? null,
+					projectId: newDataset.projectId,
+					organizationId: "",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					fileCount: 0,
+					totalItems: 0,
+					project: { name: projectName },
+					_count: { evals: 0, files: 0 },
+					files: [],
+				}
+				return { ...old, datasets: [optimisticDataset, ...old.datasets] }
 			})
-			utils.datasets.list.invalidate()
+			return { previousData }
 		},
-		onError: (error) => {
+		onSuccess: (createdDataset) => {
+			// Replace the temp item with the real one immediately
+			utils.datasets.list.setData(undefined, (old) => {
+				if (!old) return old
+				const projectName =
+					old.datasets.find((d) => d.id.startsWith("temp-"))?.project?.name ?? "Project"
+				return {
+					...old,
+					datasets: old.datasets.map((d) =>
+						d.id.startsWith("temp-")
+							? {
+									...createdDataset,
+									fileCount: 0,
+									totalItems: 0,
+									project: { name: projectName },
+									_count: { evals: 0, files: 0 },
+								}
+							: d
+					),
+				}
+			})
+		},
+		onError: (error, _newDataset, context) => {
+			if (context?.previousData) {
+				utils.datasets.list.setData(undefined, context.previousData)
+			}
 			toast({
 				title: "Failed to create dataset",
 				description: error.message,
 				variant: "destructive",
 			})
+		},
+		onSettled: () => {
+			utils.datasets.list.invalidate()
 		},
 	})
 
@@ -248,6 +293,7 @@ function Datasets() {
 							fileCount={dataset.fileCount}
 							totalItems={dataset.totalItems}
 							updatedAt={formatDistanceToNow(new Date(dataset.updatedAt), { addSuffix: true })}
+							isCreating={dataset.id.startsWith("temp-")}
 							onEdit={handleEdit}
 							onDelete={handleDelete}
 						/>

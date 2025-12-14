@@ -14,25 +14,24 @@ export async function createContext({ req }: FetchCreateContextFnOptions) {
 	let needsOrganizationSetup = false
 
 	if (session?.user) {
-		// Get user with their personal organization (direct relation, no membership query needed)
+		// Single query to get user with personal organization AND memberships
+		// This eliminates the second sequential DB query for membership lookup
 		const userWithOrg = await prisma.user.findUnique({
 			where: { id: session.user.id },
-			include: { personalOrganization: true },
+			include: {
+				personalOrganization: true,
+				memberships: {
+					include: { organization: true },
+				},
+			},
 		})
 
 		activeOrganization = userWithOrg?.personalOrganization || null
 
-		// Get membership for the personal organization (for role info)
-		if (activeOrganization) {
-			membership = await prisma.membership.findUnique({
-				where: {
-					userId_organizationId: {
-						userId: session.user.id,
-						organizationId: activeOrganization.id,
-					},
-				},
-				include: { organization: true },
-			})
+		// Find the membership for the personal organization from the already-fetched data
+		if (activeOrganization && userWithOrg?.memberships) {
+			const orgId = activeOrganization.id
+			membership = userWithOrg.memberships.find((m) => m.organizationId === orgId) || null
 		}
 
 		// If user has no personal organization, they need to complete setup

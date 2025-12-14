@@ -19,7 +19,8 @@ export const datasetsRouter = router({
 				...(input?.projectId && { projectId: input.projectId }),
 			}
 
-			const [datasets, total] = await Promise.all([
+			// Run all queries in parallel - don't fetch all files just to sum their counts
+			const [datasets, total, itemCountsByDataset] = await Promise.all([
 				ctx.prisma.dataset.findMany({
 					where,
 					orderBy: { createdAt: "desc" },
@@ -28,18 +29,28 @@ export const datasetsRouter = router({
 					include: {
 						project: { select: { name: true } },
 						_count: { select: { evals: true, files: true } },
-						files: {
-							select: { id: true, itemCount: true },
-						},
 					},
 				}),
 				ctx.prisma.dataset.count({ where }),
+				// Use groupBy to efficiently sum itemCount per dataset without fetching all files
+				ctx.prisma.datasetFile.groupBy({
+					by: ["datasetId"],
+					_sum: { itemCount: true },
+					where: {
+						dataset: { organizationId: ctx.activeOrganization.id },
+						...(input?.projectId && { dataset: { projectId: input.projectId } }),
+					},
+				}),
 			])
 
-			// Calculate total item count across all files
+			// Create a map for O(1) lookup of item counts
+			const itemCountMap = new Map(
+				itemCountsByDataset.map((item) => [item.datasetId, item._sum.itemCount ?? 0])
+			)
+
 			const datasetsWithCounts = datasets.map((dataset) => ({
 				...dataset,
-				totalItems: dataset.files.reduce((sum, file) => sum + file.itemCount, 0),
+				totalItems: itemCountMap.get(dataset.id) ?? 0,
 				fileCount: dataset._count.files,
 			}))
 

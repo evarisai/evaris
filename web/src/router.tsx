@@ -8,6 +8,11 @@ export function getRouter() {
 		defaultOptions: {
 			queries: {
 				staleTime: 1000 * 60 * 5, // 5 minutes
+				refetchOnWindowFocus: false, // Prevent refetch on tab switch
+				retry: 1, // Only retry once on failure
+			},
+			mutations: {
+				retry: false, // Don't retry mutations
 			},
 		},
 	})

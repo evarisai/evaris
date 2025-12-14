@@ -55,6 +55,15 @@ function Projects() {
 			})
 			return { previousProjects }
 		},
+		onSuccess: (createdProject) => {
+			// Replace the temp item with the real one immediately
+			utils.projects.list.setData(undefined, (old) => {
+				if (!old) return old
+				return old.map((p) =>
+					p.id.startsWith("temp-") ? { ...createdProject, _count: { evals: 0, datasets: 0 } } : p
+				)
+			})
+		},
 		onError: (_err, _newProject, context) => {
 			// Roll back on error
 			if (context?.previousProjects) {
@@ -62,7 +71,7 @@ function Projects() {
 			}
 		},
 		onSettled: () => {
-			// Refetch to get server state
+			// Refetch to sync with server (in background)
 			utils.projects.list.invalidate()
 		},
 	})
@@ -273,6 +282,7 @@ function Projects() {
 								}
 								evalCount={project._count?.evals || 0}
 								tags={[]}
+								isCreating={project.id.startsWith("temp-")}
 								onRun={(id) => navigate({ to: "/projects/$projectId", params: { projectId: id } })}
 								onEdit={handleEdit}
 								onSettings={(id) =>

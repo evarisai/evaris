@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { FolderKanban, MoreHorizontal, Pencil, Play, Settings, Trash2 } from "lucide-react"
+import { FolderKanban, Loader2, MoreHorizontal, Pencil, Play, Settings, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -17,6 +17,7 @@ interface ProjectCardProps {
 	lastRun?: string
 	evalCount: number
 	tags?: string[]
+	isCreating?: boolean
 	onRun?: (id: string) => void
 	onEdit?: (id: string) => void
 	onSettings?: (id: string) => void
@@ -30,29 +31,38 @@ export function ProjectCard({
 	lastRun,
 	evalCount,
 	tags = [],
+	isCreating = false,
 	onRun,
 	onEdit,
 	onSettings,
 	onDelete,
 }: ProjectCardProps) {
-	return (
-		<Link to="/projects/$projectId" params={{ projectId: id }} className="block h-full">
-			<Card
-				className="group card-hover cursor-pointer h-full flex flex-col"
-				data-testid={`card-project-${id}`}
-			>
-				<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3 flex-1">
-					<div className="flex items-start gap-3 min-w-0">
-						<div className="rounded-lg bg-muted p-2.5 shrink-0">
-							<FolderKanban className="h-4 w-4 text-shadow-muted-foreground" />
-						</div>
-						<div className="space-y-1.5 min-w-0">
-							<CardTitle className="card-title text-base font-semibold truncate">{name}</CardTitle>
-							<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed min-h-[2.5rem]">
-								{description || "No description"}
-							</p>
-						</div>
+	const cardContent = (
+		<Card
+			className={`group h-full flex flex-col relative ${isCreating ? "opacity-75" : "card-hover cursor-pointer"}`}
+			data-testid={`card-project-${id}`}
+		>
+			{isCreating && (
+				<div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-xl z-10">
+					<div className="flex items-center gap-2 text-sm text-muted-foreground">
+						<Loader2 className="h-4 w-4 animate-spin" />
+						<span>Creating...</span>
 					</div>
+				</div>
+			)}
+			<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3 flex-1">
+				<div className="flex items-start gap-3 min-w-0">
+					<div className="rounded-lg bg-muted p-2.5 shrink-0">
+						<FolderKanban className="h-4 w-4 text-shadow-muted-foreground" />
+					</div>
+					<div className="space-y-1.5 min-w-0">
+						<CardTitle className="card-title text-base font-semibold truncate">{name}</CardTitle>
+						<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed min-h-[2.5rem]">
+							{description || "No description"}
+						</p>
+					</div>
+				</div>
+				{!isCreating && (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
 							<Button
@@ -112,26 +122,36 @@ export function ProjectCard({
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-				</CardHeader>
-				<CardContent className="pt-0">
-					{tags.length > 0 && (
-						<div className="flex flex-wrap items-center gap-1.5 mb-4">
-							{tags.map((tag) => (
-								<span
-									key={tag}
-									className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-muted/70 text-muted-foreground border border-border/50"
-								>
-									{tag}
-								</span>
-							))}
-						</div>
-					)}
-					<div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
-						<span className="font-medium">{evalCount} evals</span>
-						{lastRun && <span>Last run: {lastRun}</span>}
+				)}
+			</CardHeader>
+			<CardContent className="pt-0">
+				{tags.length > 0 && (
+					<div className="flex flex-wrap items-center gap-1.5 mb-4">
+						{tags.map((tag) => (
+							<span
+								key={tag}
+								className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-muted/70 text-muted-foreground border border-border/50"
+							>
+								{tag}
+							</span>
+						))}
 					</div>
-				</CardContent>
-			</Card>
+				)}
+				<div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/50">
+					<span className="font-medium">{evalCount} evals</span>
+					{lastRun && <span>Last run: {lastRun}</span>}
+				</div>
+			</CardContent>
+		</Card>
+	)
+
+	if (isCreating) {
+		return <div className="block h-full">{cardContent}</div>
+	}
+
+	return (
+		<Link to="/projects/$projectId" params={{ projectId: id }} className="block h-full">
+			{cardContent}
 		</Link>
 	)
 }
