@@ -11,7 +11,7 @@ import {
 	Settings,
 	User,
 } from "lucide-react"
-import { EvarisName, EvarisSymbol } from "@/components/Logo"
+import { EvarisSymbol } from "@/components/Logo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
 	DropdownMenu,
@@ -67,12 +67,10 @@ export function AppSidebar() {
 	return (
 		<Sidebar className="border-r border-sidebar-border">
 			<SidebarHeader className="p-4 pb-2">
-				<div className="flex items-center gap-2.5 px-1">
-					<div className="p-1.5 rounded-lg bg-foreground/5">
-						<EvarisSymbol className="h-6 w-6" />
-					</div>
-					<EvarisName className="h-4" />
-				</div>
+				<Link to="/dashboard" className="flex items-center gap-2 text-foreground px-1">
+					<EvarisSymbol className="h-8 w-8" />
+					<span className="text-[1.375rem] font-semibold tracking-tight leading-none">evaris</span>
+				</Link>
 			</SidebarHeader>
 
 			<SidebarSeparator className="mx-4" />
