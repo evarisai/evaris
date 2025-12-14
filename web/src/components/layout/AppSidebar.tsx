@@ -6,11 +6,16 @@ import {
 	FolderKanban,
 	LayoutDashboard,
 	LogOut,
+	Monitor,
+	Moon,
 	Network,
+	Palette,
 	ScrollText,
 	Settings,
+	Sun,
 	User,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 import { EvarisSymbol } from "@/components/Logo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -49,6 +54,7 @@ export function AppSidebar() {
 	const navigate = useNavigate()
 	const { data: session } = useSession()
 	const user = session?.user
+	const { theme, setTheme } = useTheme()
 
 	const handleSignOut = async () => {
 		await signOut()
@@ -141,6 +147,51 @@ export function AppSidebar() {
 								Account Settings
 							</Link>
 						</DropdownMenuItem>
+						<div className="flex items-center gap-2 px-2 py-1.5 text-sm">
+							<Palette className="h-4 w-4 text-foreground" />
+							<span className="flex-1">Theme</span>
+							<div className="flex items-center gap-0.5 p-0.5 rounded-md bg-muted">
+								<button
+									type="button"
+									onClick={() => setTheme("system")}
+									className={`p-1.5 rounded transition-all ${
+										theme === "system"
+											? "bg-background text-foreground shadow-sm"
+											: "text-muted-foreground hover:text-foreground"
+									}`}
+									title="System"
+									data-testid="theme-system"
+								>
+									<Monitor className="h-3.5 w-3.5" />
+								</button>
+								<button
+									type="button"
+									onClick={() => setTheme("light")}
+									className={`p-1.5 rounded transition-all ${
+										theme === "light"
+											? "bg-background text-foreground shadow-sm"
+											: "text-muted-foreground hover:text-foreground"
+									}`}
+									title="Light"
+									data-testid="theme-light"
+								>
+									<Sun className="h-3.5 w-3.5" />
+								</button>
+								<button
+									type="button"
+									onClick={() => setTheme("dark")}
+									className={`p-1.5 rounded transition-all ${
+										theme === "dark"
+											? "bg-background text-foreground shadow-sm"
+											: "text-muted-foreground hover:text-foreground"
+									}`}
+									title="Dark"
+									data-testid="theme-dark"
+								>
+									<Moon className="h-3.5 w-3.5" />
+								</button>
+							</div>
+						</div>
 						<DropdownMenuSeparator className="my-1" />
 						<DropdownMenuItem
 							onClick={handleSignOut}
