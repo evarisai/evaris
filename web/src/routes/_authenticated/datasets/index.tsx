@@ -257,7 +257,7 @@ function Datasets() {
 										</SelectItem>
 									))}
 									{(!projects || projects.length === 0) && (
-										<SelectItem value="" disabled>
+										<SelectItem value="__none__" disabled>
 											No projects available
 										</SelectItem>
 									)}

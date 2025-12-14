@@ -262,7 +262,7 @@ function Evals() {
 										</SelectItem>
 									))}
 									{(!projects || projects.length === 0) && (
-										<SelectItem value="" disabled>
+										<SelectItem value="__none__" disabled>
 											No projects available
 										</SelectItem>
 									)}
@@ -288,7 +288,7 @@ function Evals() {
 										</SelectItem>
 									))}
 									{(!datasetsData?.datasets || datasetsData.datasets.length === 0) && (
-										<SelectItem value="" disabled>
+										<SelectItem value="__none__" disabled>
 											No datasets in this project
 										</SelectItem>
 									)}
