@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react-swc"
 import { nitro } from "nitro/vite"
@@ -12,6 +13,7 @@ export default defineConfig({
 		tsConfigPaths({
 			projects: ["./tsconfig.json"],
 		}),
+		tailwindcss(),
 		tanstackStart(),
 		nitro({
 			preset: "vercel",

@@ -84,14 +84,14 @@ interface MetricChartsProps {
 }
 
 const CHART_COLORS = {
-	primary: "hsl(var(--chart-1))",
-	secondary: "hsl(var(--chart-2))",
-	tertiary: "hsl(var(--chart-3))",
-	quaternary: "hsl(var(--chart-4))",
-	quinary: "hsl(var(--chart-5))",
+	primary: "var(--chart-1)",
+	secondary: "var(--chart-2)",
+	tertiary: "var(--chart-3)",
+	quaternary: "var(--chart-4)",
+	quinary: "var(--chart-5)",
 	success: "hsl(160 72% 47%)",
-	danger: "hsl(var(--destructive))",
-	muted: "hsl(var(--muted-foreground))",
+	danger: "var(--destructive)",
+	muted: "var(--muted-foreground)",
 }
 
 const GRADIENT_COLORS = [
@@ -402,16 +402,16 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 													<stop offset="100%" stopColor="hsl(160 72% 47%)" stopOpacity={0.2} />
 												</linearGradient>
 											</defs>
-											<PolarGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+											<PolarGrid stroke="var(--border)" strokeDasharray="3 3" />
 											<PolarAngleAxis
 												dataKey="metric"
-												tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+												tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 												tickLine={false}
 											/>
 											<PolarRadiusAxis
 												angle={30}
 												domain={[0, 100]}
-												tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+												tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
 												tickCount={5}
 												axisLine={false}
 											/>
@@ -497,19 +497,15 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 												<stop offset="100%" stopColor="hsl(0 72% 40%)" />
 											</linearGradient>
 										</defs>
-										<CartesianGrid
-											strokeDasharray="3 3"
-											stroke="hsl(var(--border))"
-											vertical={false}
-										/>
+										<CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
 										<XAxis
 											dataKey="range"
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 										/>
 										<YAxis
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 											allowDecimals={false}
@@ -556,13 +552,13 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 										</defs>
 										<CartesianGrid
 											strokeDasharray="3 3"
-											stroke="hsl(var(--border))"
+											stroke="var(--border)"
 											horizontal={false}
 										/>
 										<XAxis
 											type="number"
 											domain={[0, 100]}
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 										/>
@@ -570,16 +566,12 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 											type="category"
 											dataKey="name"
 											width={100}
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 										/>
 										<Tooltip content={<CustomTooltip />} />
-										<ReferenceLine
-											x={80}
-											stroke="hsl(var(--muted-foreground))"
-											strokeDasharray="5 5"
-										/>
+										<ReferenceLine x={80} stroke="var(--muted-foreground)" strokeDasharray="5 5" />
 										<Legend
 											verticalAlign="top"
 											height={36}
@@ -598,7 +590,7 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 										<Bar
 											dataKey="avgScore"
 											name="Avg Score"
-											fill="hsl(var(--muted-foreground))"
+											fill="var(--muted-foreground)"
 											fillOpacity={0.3}
 											radius={[0, 4, 4, 0]}
 										/>
@@ -611,19 +603,15 @@ export function MetricCharts({ testResults, metricStats, evalData, isMounted }: 
 												<stop offset="100%" stopColor="hsl(220 80% 60%)" stopOpacity={0.05} />
 											</linearGradient>
 										</defs>
-										<CartesianGrid
-											strokeDasharray="3 3"
-											stroke="hsl(var(--border))"
-											vertical={false}
-										/>
+										<CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
 										<XAxis
 											dataKey="range"
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 										/>
 										<YAxis
-											tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+											tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
 											tickLine={false}
 											axisLine={false}
 											allowDecimals={false}

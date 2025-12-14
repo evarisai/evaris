@@ -1,0 +1,1625 @@
+{
+	"v": 5,
+	"entries": {
+		"introduction--docs": {
+			"id": "introduction--docs",
+			"title": "Introduction",
+			"name": "Docs",
+			"importPath": "./src/stories/Configure.mdx",
+			"storiesImports": [],
+			"type": "docs",
+			"tags": ["dev", "test", "unattached-mdx"]
+		},
+		"dashboard-datasetcard--docs": {
+			"id": "dashboard-datasetcard--docs",
+			"title": "Dashboard/DatasetCard",
+			"name": "Docs",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-datasetcard--default": {
+			"type": "story",
+			"id": "dashboard-datasetcard--default",
+			"name": "Default",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-datasetcard--single-file": {
+			"type": "story",
+			"id": "dashboard-datasetcard--single-file",
+			"name": "Single File",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-datasetcard--no-items": {
+			"type": "story",
+			"id": "dashboard-datasetcard--no-items",
+			"name": "No Items",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-datasetcard--no-description": {
+			"type": "story",
+			"id": "dashboard-datasetcard--no-description",
+			"name": "No Description",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-datasetcard--large-dataset": {
+			"type": "story",
+			"id": "dashboard-datasetcard--large-dataset",
+			"name": "Large Dataset",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-datasetcard--grid": {
+			"type": "story",
+			"id": "dashboard-datasetcard--grid",
+			"name": "Grid",
+			"title": "Dashboard/DatasetCard",
+			"importPath": "./src/stories/dashboard/DatasetCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/DatasetCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--docs": {
+			"id": "dashboard-performancechart--docs",
+			"title": "Dashboard/PerformanceChart",
+			"name": "Docs",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-performancechart--default": {
+			"type": "story",
+			"id": "dashboard-performancechart--default",
+			"name": "Default",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--with-accuracy": {
+			"type": "story",
+			"id": "dashboard-performancechart--with-accuracy",
+			"name": "With Accuracy",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--upward-trend": {
+			"type": "story",
+			"id": "dashboard-performancechart--upward-trend",
+			"name": "Upward Trend",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--downward-trend": {
+			"type": "story",
+			"id": "dashboard-performancechart--downward-trend",
+			"name": "Downward Trend",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--volatile": {
+			"type": "story",
+			"id": "dashboard-performancechart--volatile",
+			"name": "Volatile",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--high-performance": {
+			"type": "story",
+			"id": "dashboard-performancechart--high-performance",
+			"name": "High Performance",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-performancechart--minimal-data": {
+			"type": "story",
+			"id": "dashboard-performancechart--minimal-data",
+			"name": "Minimal Data",
+			"title": "Dashboard/PerformanceChart",
+			"importPath": "./src/stories/dashboard/PerformanceChart.stories.tsx",
+			"componentPath": "./src/components/dashboard/PerformanceChart.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--docs": {
+			"id": "dashboard-projectcard--docs",
+			"title": "Dashboard/ProjectCard",
+			"name": "Docs",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-projectcard--default": {
+			"type": "story",
+			"id": "dashboard-projectcard--default",
+			"name": "Default",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--without-tags": {
+			"type": "story",
+			"id": "dashboard-projectcard--without-tags",
+			"name": "Without Tags",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--without-last-run": {
+			"type": "story",
+			"id": "dashboard-projectcard--without-last-run",
+			"name": "Without Last Run",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--long-description": {
+			"type": "story",
+			"id": "dashboard-projectcard--long-description",
+			"name": "Long Description",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--many-tags": {
+			"type": "story",
+			"id": "dashboard-projectcard--many-tags",
+			"name": "Many Tags",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-projectcard--grid": {
+			"type": "story",
+			"id": "dashboard-projectcard--grid",
+			"name": "Grid",
+			"title": "Dashboard/ProjectCard",
+			"importPath": "./src/stories/dashboard/ProjectCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/ProjectCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-recentactivity--docs": {
+			"id": "dashboard-recentactivity--docs",
+			"title": "Dashboard/RecentActivity",
+			"name": "Docs",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-recentactivity--default": {
+			"type": "story",
+			"id": "dashboard-recentactivity--default",
+			"name": "Default",
+			"title": "Dashboard/RecentActivity",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"componentPath": "./src/components/dashboard/RecentActivity.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-recentactivity--empty": {
+			"type": "story",
+			"id": "dashboard-recentactivity--empty",
+			"name": "Empty",
+			"title": "Dashboard/RecentActivity",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"componentPath": "./src/components/dashboard/RecentActivity.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-recentactivity--all-passed": {
+			"type": "story",
+			"id": "dashboard-recentactivity--all-passed",
+			"name": "All Passed",
+			"title": "Dashboard/RecentActivity",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"componentPath": "./src/components/dashboard/RecentActivity.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-recentactivity--all-failed": {
+			"type": "story",
+			"id": "dashboard-recentactivity--all-failed",
+			"name": "All Failed",
+			"title": "Dashboard/RecentActivity",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"componentPath": "./src/components/dashboard/RecentActivity.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-recentactivity--mixed-activity": {
+			"type": "story",
+			"id": "dashboard-recentactivity--mixed-activity",
+			"name": "Mixed Activity",
+			"title": "Dashboard/RecentActivity",
+			"importPath": "./src/stories/dashboard/RecentActivity.stories.tsx",
+			"componentPath": "./src/components/dashboard/RecentActivity.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--docs": {
+			"id": "dashboard-statcard--docs",
+			"title": "Dashboard/StatCard",
+			"name": "Docs",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"dashboard-statcard--default": {
+			"type": "story",
+			"id": "dashboard-statcard--default",
+			"name": "Default",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--with-positive-trend": {
+			"type": "story",
+			"id": "dashboard-statcard--with-positive-trend",
+			"name": "With Positive Trend",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--with-negative-trend": {
+			"type": "story",
+			"id": "dashboard-statcard--with-negative-trend",
+			"name": "With Negative Trend",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--with-neutral-trend": {
+			"type": "story",
+			"id": "dashboard-statcard--with-neutral-trend",
+			"name": "With Neutral Trend",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--with-icon": {
+			"type": "story",
+			"id": "dashboard-statcard--with-icon",
+			"name": "With Icon",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--all-variants": {
+			"type": "story",
+			"id": "dashboard-statcard--all-variants",
+			"name": "All Variants",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--without-trend": {
+			"type": "story",
+			"id": "dashboard-statcard--without-trend",
+			"name": "Without Trend",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"dashboard-statcard--large-number": {
+			"type": "story",
+			"id": "dashboard-statcard--large-number",
+			"name": "Large Number",
+			"title": "Dashboard/StatCard",
+			"importPath": "./src/stories/dashboard/StatCard.stories.tsx",
+			"componentPath": "./src/components/dashboard/StatCard.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--docs": {
+			"id": "layout-logo--docs",
+			"title": "Layout/Logo",
+			"name": "Docs",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"layout-logo--symbol": {
+			"type": "story",
+			"id": "layout-logo--symbol",
+			"name": "Symbol",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--symbol-sizes": {
+			"type": "story",
+			"id": "layout-logo--symbol-sizes",
+			"name": "Symbol Sizes",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--name": {
+			"type": "story",
+			"id": "layout-logo--name",
+			"name": "Name",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--name-sizes": {
+			"type": "story",
+			"id": "layout-logo--name-sizes",
+			"name": "Name Sizes",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--logo": {
+			"type": "story",
+			"id": "layout-logo--logo",
+			"name": "Logo",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--logo-full": {
+			"type": "story",
+			"id": "layout-logo--logo-full",
+			"name": "Logo Full",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--all-variants": {
+			"type": "story",
+			"id": "layout-logo--all-variants",
+			"name": "All Variants",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--on-dark-background": {
+			"type": "story",
+			"id": "layout-logo--on-dark-background",
+			"name": "On Dark Background",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"layout-logo--color-variations": {
+			"type": "story",
+			"id": "layout-logo--color-variations",
+			"name": "Color Variations",
+			"title": "Layout/Logo",
+			"importPath": "./src/stories/layout/Logo.stories.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-alert--docs": {
+			"id": "ui-alert--docs",
+			"title": "UI/Alert",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-alert--default": {
+			"type": "story",
+			"id": "ui-alert--default",
+			"name": "Default",
+			"title": "UI/Alert",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"componentPath": "./src/components/ui/alert.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-alert--destructive": {
+			"type": "story",
+			"id": "ui-alert--destructive",
+			"name": "Destructive",
+			"title": "UI/Alert",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"componentPath": "./src/components/ui/alert.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-alert--without-icon": {
+			"type": "story",
+			"id": "ui-alert--without-icon",
+			"name": "Without Icon",
+			"title": "UI/Alert",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"componentPath": "./src/components/ui/alert.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-alert--title-only": {
+			"type": "story",
+			"id": "ui-alert--title-only",
+			"name": "Title Only",
+			"title": "UI/Alert",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"componentPath": "./src/components/ui/alert.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-alert--all-variants": {
+			"type": "story",
+			"id": "ui-alert--all-variants",
+			"name": "All Variants",
+			"title": "UI/Alert",
+			"importPath": "./src/stories/ui/Alert.stories.tsx",
+			"componentPath": "./src/components/ui/alert.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--docs": {
+			"id": "ui-badge--docs",
+			"title": "UI/Badge",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-badge--default": {
+			"type": "story",
+			"id": "ui-badge--default",
+			"name": "Default",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--secondary": {
+			"type": "story",
+			"id": "ui-badge--secondary",
+			"name": "Secondary",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--destructive": {
+			"type": "story",
+			"id": "ui-badge--destructive",
+			"name": "Destructive",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--outline": {
+			"type": "story",
+			"id": "ui-badge--outline",
+			"name": "Outline",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--success": {
+			"type": "story",
+			"id": "ui-badge--success",
+			"name": "Success",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--all-variants": {
+			"type": "story",
+			"id": "ui-badge--all-variants",
+			"name": "All Variants",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-badge--use-cases": {
+			"type": "story",
+			"id": "ui-badge--use-cases",
+			"name": "Use Cases",
+			"title": "UI/Badge",
+			"importPath": "./src/stories/ui/Badge.stories.tsx",
+			"componentPath": "./src/components/ui/badge.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--docs": {
+			"id": "ui-button--docs",
+			"title": "UI/Button",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-button--default": {
+			"type": "story",
+			"id": "ui-button--default",
+			"name": "Default",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--destructive": {
+			"type": "story",
+			"id": "ui-button--destructive",
+			"name": "Destructive",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--outline": {
+			"type": "story",
+			"id": "ui-button--outline",
+			"name": "Outline",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--secondary": {
+			"type": "story",
+			"id": "ui-button--secondary",
+			"name": "Secondary",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--ghost": {
+			"type": "story",
+			"id": "ui-button--ghost",
+			"name": "Ghost",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--link": {
+			"type": "story",
+			"id": "ui-button--link",
+			"name": "Link",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--small": {
+			"type": "story",
+			"id": "ui-button--small",
+			"name": "Small",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--large": {
+			"type": "story",
+			"id": "ui-button--large",
+			"name": "Large",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--icon": {
+			"type": "story",
+			"id": "ui-button--icon",
+			"name": "Icon",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--with-icon": {
+			"type": "story",
+			"id": "ui-button--with-icon",
+			"name": "With Icon",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--loading": {
+			"type": "story",
+			"id": "ui-button--loading",
+			"name": "Loading",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--disabled": {
+			"type": "story",
+			"id": "ui-button--disabled",
+			"name": "Disabled",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--all-variants": {
+			"type": "story",
+			"id": "ui-button--all-variants",
+			"name": "All Variants",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-button--all-sizes": {
+			"type": "story",
+			"id": "ui-button--all-sizes",
+			"name": "All Sizes",
+			"title": "UI/Button",
+			"importPath": "./src/stories/ui/Button.stories.tsx",
+			"componentPath": "./src/components/ui/button.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-card--docs": {
+			"id": "ui-card--docs",
+			"title": "UI/Card",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Card.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-card--default": {
+			"type": "story",
+			"id": "ui-card--default",
+			"name": "Default",
+			"title": "UI/Card",
+			"importPath": "./src/stories/ui/Card.stories.tsx",
+			"componentPath": "./src/components/ui/card.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-card--with-footer": {
+			"type": "story",
+			"id": "ui-card--with-footer",
+			"name": "With Footer",
+			"title": "UI/Card",
+			"importPath": "./src/stories/ui/Card.stories.tsx",
+			"componentPath": "./src/components/ui/card.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-card--simple-card": {
+			"type": "story",
+			"id": "ui-card--simple-card",
+			"name": "Simple Card",
+			"title": "UI/Card",
+			"importPath": "./src/stories/ui/Card.stories.tsx",
+			"componentPath": "./src/components/ui/card.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-card--notification-card": {
+			"type": "story",
+			"id": "ui-card--notification-card",
+			"name": "Notification Card",
+			"title": "UI/Card",
+			"importPath": "./src/stories/ui/Card.stories.tsx",
+			"componentPath": "./src/components/ui/card.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--docs": {
+			"id": "ui-checkbox--docs",
+			"title": "UI/Checkbox",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-checkbox--default": {
+			"type": "story",
+			"id": "ui-checkbox--default",
+			"name": "Default",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--checked": {
+			"type": "story",
+			"id": "ui-checkbox--checked",
+			"name": "Checked",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--disabled": {
+			"type": "story",
+			"id": "ui-checkbox--disabled",
+			"name": "Disabled",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--disabled-checked": {
+			"type": "story",
+			"id": "ui-checkbox--disabled-checked",
+			"name": "Disabled Checked",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--with-label": {
+			"type": "story",
+			"id": "ui-checkbox--with-label",
+			"name": "With Label",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--with-description": {
+			"type": "story",
+			"id": "ui-checkbox--with-description",
+			"name": "With Description",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-checkbox--multiple-options": {
+			"type": "story",
+			"id": "ui-checkbox--multiple-options",
+			"name": "Multiple Options",
+			"title": "UI/Checkbox",
+			"importPath": "./src/stories/ui/Checkbox.stories.tsx",
+			"componentPath": "./src/components/ui/checkbox.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dialog--docs": {
+			"id": "ui-dialog--docs",
+			"title": "UI/Dialog",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Dialog.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-dialog--default": {
+			"type": "story",
+			"id": "ui-dialog--default",
+			"name": "Default",
+			"title": "UI/Dialog",
+			"importPath": "./src/stories/ui/Dialog.stories.tsx",
+			"componentPath": "./src/components/ui/dialog.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dialog--edit-profile": {
+			"type": "story",
+			"id": "ui-dialog--edit-profile",
+			"name": "Edit Profile",
+			"title": "UI/Dialog",
+			"importPath": "./src/stories/ui/Dialog.stories.tsx",
+			"componentPath": "./src/components/ui/dialog.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dialog--confirmation": {
+			"type": "story",
+			"id": "ui-dialog--confirmation",
+			"name": "Confirmation",
+			"title": "UI/Dialog",
+			"importPath": "./src/stories/ui/Dialog.stories.tsx",
+			"componentPath": "./src/components/ui/dialog.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dropdownmenu--docs": {
+			"id": "ui-dropdownmenu--docs",
+			"title": "UI/DropdownMenu",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/DropdownMenu.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-dropdownmenu--default": {
+			"type": "story",
+			"id": "ui-dropdownmenu--default",
+			"name": "Default",
+			"title": "UI/DropdownMenu",
+			"importPath": "./src/stories/ui/DropdownMenu.stories.tsx",
+			"componentPath": "./src/components/ui/dropdown-menu.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dropdownmenu--with-sub-menu": {
+			"type": "story",
+			"id": "ui-dropdownmenu--with-sub-menu",
+			"name": "With Sub Menu",
+			"title": "UI/DropdownMenu",
+			"importPath": "./src/stories/ui/DropdownMenu.stories.tsx",
+			"componentPath": "./src/components/ui/dropdown-menu.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dropdownmenu--with-checkboxes": {
+			"type": "story",
+			"id": "ui-dropdownmenu--with-checkboxes",
+			"name": "With Checkboxes",
+			"title": "UI/DropdownMenu",
+			"importPath": "./src/stories/ui/DropdownMenu.stories.tsx",
+			"componentPath": "./src/components/ui/dropdown-menu.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-dropdownmenu--with-radio-group": {
+			"type": "story",
+			"id": "ui-dropdownmenu--with-radio-group",
+			"name": "With Radio Group",
+			"title": "UI/DropdownMenu",
+			"importPath": "./src/stories/ui/DropdownMenu.stories.tsx",
+			"componentPath": "./src/components/ui/dropdown-menu.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--docs": {
+			"id": "ui-input--docs",
+			"title": "UI/Input",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-input--default": {
+			"type": "story",
+			"id": "ui-input--default",
+			"name": "Default",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--email": {
+			"type": "story",
+			"id": "ui-input--email",
+			"name": "Email",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--password": {
+			"type": "story",
+			"id": "ui-input--password",
+			"name": "Password",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--number": {
+			"type": "story",
+			"id": "ui-input--number",
+			"name": "Number",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--search": {
+			"type": "story",
+			"id": "ui-input--search",
+			"name": "Search",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--disabled": {
+			"type": "story",
+			"id": "ui-input--disabled",
+			"name": "Disabled",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--with-value": {
+			"type": "story",
+			"id": "ui-input--with-value",
+			"name": "With Value",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--with-label": {
+			"type": "story",
+			"id": "ui-input--with-label",
+			"name": "With Label",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-input--file": {
+			"type": "story",
+			"id": "ui-input--file",
+			"name": "File",
+			"title": "UI/Input",
+			"importPath": "./src/stories/ui/Input.stories.tsx",
+			"componentPath": "./src/components/ui/input.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-label--docs": {
+			"id": "ui-label--docs",
+			"title": "UI/Label",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-label--default": {
+			"type": "story",
+			"id": "ui-label--default",
+			"name": "Default",
+			"title": "UI/Label",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"componentPath": "./src/components/ui/label.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-label--with-input": {
+			"type": "story",
+			"id": "ui-label--with-input",
+			"name": "With Input",
+			"title": "UI/Label",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"componentPath": "./src/components/ui/label.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-label--with-checkbox": {
+			"type": "story",
+			"id": "ui-label--with-checkbox",
+			"name": "With Checkbox",
+			"title": "UI/Label",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"componentPath": "./src/components/ui/label.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-label--required": {
+			"type": "story",
+			"id": "ui-label--required",
+			"name": "Required",
+			"title": "UI/Label",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"componentPath": "./src/components/ui/label.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-label--disabled-input": {
+			"type": "story",
+			"id": "ui-label--disabled-input",
+			"name": "Disabled Input",
+			"title": "UI/Label",
+			"importPath": "./src/stories/ui/Label.stories.tsx",
+			"componentPath": "./src/components/ui/label.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-popover--docs": {
+			"id": "ui-popover--docs",
+			"title": "UI/Popover",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Popover.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-popover--default": {
+			"type": "story",
+			"id": "ui-popover--default",
+			"name": "Default",
+			"title": "UI/Popover",
+			"importPath": "./src/stories/ui/Popover.stories.tsx",
+			"componentPath": "./src/components/ui/popover.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-popover--with-form": {
+			"type": "story",
+			"id": "ui-popover--with-form",
+			"name": "With Form",
+			"title": "UI/Popover",
+			"importPath": "./src/stories/ui/Popover.stories.tsx",
+			"componentPath": "./src/components/ui/popover.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-popover--simple-content": {
+			"type": "story",
+			"id": "ui-popover--simple-content",
+			"name": "Simple Content",
+			"title": "UI/Popover",
+			"importPath": "./src/stories/ui/Popover.stories.tsx",
+			"componentPath": "./src/components/ui/popover.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--docs": {
+			"id": "ui-progress--docs",
+			"title": "UI/Progress",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-progress--default": {
+			"type": "story",
+			"id": "ui-progress--default",
+			"name": "Default",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--empty": {
+			"type": "story",
+			"id": "ui-progress--empty",
+			"name": "Empty",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--half": {
+			"type": "story",
+			"id": "ui-progress--half",
+			"name": "Half",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--complete": {
+			"type": "story",
+			"id": "ui-progress--complete",
+			"name": "Complete",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--animated": {
+			"type": "story",
+			"id": "ui-progress--animated",
+			"name": "Animated",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--all-values": {
+			"type": "story",
+			"id": "ui-progress--all-values",
+			"name": "All Values",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-progress--with-label": {
+			"type": "story",
+			"id": "ui-progress--with-label",
+			"name": "With Label",
+			"title": "UI/Progress",
+			"importPath": "./src/stories/ui/Progress.stories.tsx",
+			"componentPath": "./src/components/ui/progress.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-scrollarea--docs": {
+			"id": "ui-scrollarea--docs",
+			"title": "UI/ScrollArea",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/ScrollArea.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-scrollarea--default": {
+			"type": "story",
+			"id": "ui-scrollarea--default",
+			"name": "Default",
+			"title": "UI/ScrollArea",
+			"importPath": "./src/stories/ui/ScrollArea.stories.tsx",
+			"componentPath": "./src/components/ui/scroll-area.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-scrollarea--horizontal": {
+			"type": "story",
+			"id": "ui-scrollarea--horizontal",
+			"name": "Horizontal",
+			"title": "UI/ScrollArea",
+			"importPath": "./src/stories/ui/ScrollArea.stories.tsx",
+			"componentPath": "./src/components/ui/scroll-area.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-scrollarea--long-content": {
+			"type": "story",
+			"id": "ui-scrollarea--long-content",
+			"name": "Long Content",
+			"title": "UI/ScrollArea",
+			"importPath": "./src/stories/ui/ScrollArea.stories.tsx",
+			"componentPath": "./src/components/ui/scroll-area.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-scrollarea--card-list": {
+			"type": "story",
+			"id": "ui-scrollarea--card-list",
+			"name": "Card List",
+			"title": "UI/ScrollArea",
+			"importPath": "./src/stories/ui/ScrollArea.stories.tsx",
+			"componentPath": "./src/components/ui/scroll-area.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-select--docs": {
+			"id": "ui-select--docs",
+			"title": "UI/Select",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-select--default": {
+			"type": "story",
+			"id": "ui-select--default",
+			"name": "Default",
+			"title": "UI/Select",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"componentPath": "./src/components/ui/select.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-select--with-groups": {
+			"type": "story",
+			"id": "ui-select--with-groups",
+			"name": "With Groups",
+			"title": "UI/Select",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"componentPath": "./src/components/ui/select.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-select--with-label": {
+			"type": "story",
+			"id": "ui-select--with-label",
+			"name": "With Label",
+			"title": "UI/Select",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"componentPath": "./src/components/ui/select.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-select--disabled": {
+			"type": "story",
+			"id": "ui-select--disabled",
+			"name": "Disabled",
+			"title": "UI/Select",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"componentPath": "./src/components/ui/select.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-select--with-disabled-item": {
+			"type": "story",
+			"id": "ui-select--with-disabled-item",
+			"name": "With Disabled Item",
+			"title": "UI/Select",
+			"importPath": "./src/stories/ui/Select.stories.tsx",
+			"componentPath": "./src/components/ui/select.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--docs": {
+			"id": "ui-skeleton--docs",
+			"title": "UI/Skeleton",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-skeleton--default": {
+			"type": "story",
+			"id": "ui-skeleton--default",
+			"name": "Default",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--circle": {
+			"type": "story",
+			"id": "ui-skeleton--circle",
+			"name": "Circle",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--card": {
+			"type": "story",
+			"id": "ui-skeleton--card",
+			"name": "Card",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--card-full": {
+			"type": "story",
+			"id": "ui-skeleton--card-full",
+			"name": "Card Full",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--text-lines": {
+			"type": "story",
+			"id": "ui-skeleton--text-lines",
+			"name": "Text Lines",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--table-row": {
+			"type": "story",
+			"id": "ui-skeleton--table-row",
+			"name": "Table Row",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--avatar": {
+			"type": "story",
+			"id": "ui-skeleton--avatar",
+			"name": "Avatar",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-skeleton--dashboard-card": {
+			"type": "story",
+			"id": "ui-skeleton--dashboard-card",
+			"name": "Dashboard Card",
+			"title": "UI/Skeleton",
+			"importPath": "./src/stories/ui/Skeleton.stories.tsx",
+			"componentPath": "./src/components/ui/skeleton.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--docs": {
+			"id": "ui-switch--docs",
+			"title": "UI/Switch",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-switch--default": {
+			"type": "story",
+			"id": "ui-switch--default",
+			"name": "Default",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--checked": {
+			"type": "story",
+			"id": "ui-switch--checked",
+			"name": "Checked",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--disabled": {
+			"type": "story",
+			"id": "ui-switch--disabled",
+			"name": "Disabled",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--disabled-checked": {
+			"type": "story",
+			"id": "ui-switch--disabled-checked",
+			"name": "Disabled Checked",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--with-label": {
+			"type": "story",
+			"id": "ui-switch--with-label",
+			"name": "With Label",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-switch--settings-example": {
+			"type": "story",
+			"id": "ui-switch--settings-example",
+			"name": "Settings Example",
+			"title": "UI/Switch",
+			"importPath": "./src/stories/ui/Switch.stories.tsx",
+			"componentPath": "./src/components/ui/switch.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-table--docs": {
+			"id": "ui-table--docs",
+			"title": "UI/Table",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Table.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-table--default": {
+			"type": "story",
+			"id": "ui-table--default",
+			"name": "Default",
+			"title": "UI/Table",
+			"importPath": "./src/stories/ui/Table.stories.tsx",
+			"componentPath": "./src/components/ui/table.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-table--with-footer": {
+			"type": "story",
+			"id": "ui-table--with-footer",
+			"name": "With Footer",
+			"title": "UI/Table",
+			"importPath": "./src/stories/ui/Table.stories.tsx",
+			"componentPath": "./src/components/ui/table.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-table--simple": {
+			"type": "story",
+			"id": "ui-table--simple",
+			"name": "Simple",
+			"title": "UI/Table",
+			"importPath": "./src/stories/ui/Table.stories.tsx",
+			"componentPath": "./src/components/ui/table.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tabs--docs": {
+			"id": "ui-tabs--docs",
+			"title": "UI/Tabs",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Tabs.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-tabs--default": {
+			"type": "story",
+			"id": "ui-tabs--default",
+			"name": "Default",
+			"title": "UI/Tabs",
+			"importPath": "./src/stories/ui/Tabs.stories.tsx",
+			"componentPath": "./src/components/ui/tabs.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tabs--account-settings": {
+			"type": "story",
+			"id": "ui-tabs--account-settings",
+			"name": "Account Settings",
+			"title": "UI/Tabs",
+			"importPath": "./src/stories/ui/Tabs.stories.tsx",
+			"componentPath": "./src/components/ui/tabs.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tabs--disabled-tab": {
+			"type": "story",
+			"id": "ui-tabs--disabled-tab",
+			"name": "Disabled Tab",
+			"title": "UI/Tabs",
+			"importPath": "./src/stories/ui/Tabs.stories.tsx",
+			"componentPath": "./src/components/ui/tabs.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--docs": {
+			"id": "ui-textarea--docs",
+			"title": "UI/Textarea",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-textarea--default": {
+			"type": "story",
+			"id": "ui-textarea--default",
+			"name": "Default",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--with-value": {
+			"type": "story",
+			"id": "ui-textarea--with-value",
+			"name": "With Value",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--disabled": {
+			"type": "story",
+			"id": "ui-textarea--disabled",
+			"name": "Disabled",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--with-label": {
+			"type": "story",
+			"id": "ui-textarea--with-label",
+			"name": "With Label",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--with-description": {
+			"type": "story",
+			"id": "ui-textarea--with-description",
+			"name": "With Description",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-textarea--long-content": {
+			"type": "story",
+			"id": "ui-textarea--long-content",
+			"name": "Long Content",
+			"title": "UI/Textarea",
+			"importPath": "./src/stories/ui/Textarea.stories.tsx",
+			"componentPath": "./src/components/ui/textarea.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--docs": {
+			"id": "ui-toast--docs",
+			"title": "UI/Toast",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-toast--default": {
+			"type": "story",
+			"id": "ui-toast--default",
+			"name": "Default",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--destructive": {
+			"type": "story",
+			"id": "ui-toast--destructive",
+			"name": "Destructive",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--with-action": {
+			"type": "story",
+			"id": "ui-toast--with-action",
+			"name": "With Action",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--success": {
+			"type": "story",
+			"id": "ui-toast--success",
+			"name": "Success",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--simple-message": {
+			"type": "story",
+			"id": "ui-toast--simple-message",
+			"name": "Simple Message",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-toast--all-variants": {
+			"type": "story",
+			"id": "ui-toast--all-variants",
+			"name": "All Variants",
+			"title": "UI/Toast",
+			"importPath": "./src/stories/ui/Toast.stories.tsx",
+			"componentPath": "./src/components/ui/toast.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tooltip--docs": {
+			"id": "ui-tooltip--docs",
+			"title": "UI/Tooltip",
+			"name": "Docs",
+			"importPath": "./src/stories/ui/Tooltip.stories.tsx",
+			"type": "docs",
+			"tags": ["dev", "test", "autodocs"],
+			"storiesImports": []
+		},
+		"ui-tooltip--default": {
+			"type": "story",
+			"id": "ui-tooltip--default",
+			"name": "Default",
+			"title": "UI/Tooltip",
+			"importPath": "./src/stories/ui/Tooltip.stories.tsx",
+			"componentPath": "./src/components/ui/tooltip.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tooltip--with-icon": {
+			"type": "story",
+			"id": "ui-tooltip--with-icon",
+			"name": "With Icon",
+			"title": "UI/Tooltip",
+			"importPath": "./src/stories/ui/Tooltip.stories.tsx",
+			"componentPath": "./src/components/ui/tooltip.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tooltip--positions": {
+			"type": "story",
+			"id": "ui-tooltip--positions",
+			"name": "Positions",
+			"title": "UI/Tooltip",
+			"importPath": "./src/stories/ui/Tooltip.stories.tsx",
+			"componentPath": "./src/components/ui/tooltip.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		},
+		"ui-tooltip--info-tooltip": {
+			"type": "story",
+			"id": "ui-tooltip--info-tooltip",
+			"name": "Info Tooltip",
+			"title": "UI/Tooltip",
+			"importPath": "./src/stories/ui/Tooltip.stories.tsx",
+			"componentPath": "./src/components/ui/tooltip.tsx",
+			"tags": ["dev", "test", "autodocs"]
+		}
+	}
+}

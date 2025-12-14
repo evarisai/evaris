@@ -33,7 +33,7 @@ export function StatCard({ title, value, trend, trendLabel, icon: Icon }: StatCa
 	}
 
 	return (
-		<Card className="hover-elevate group transition-all duration-300 hover:shadow-md border-card-border">
+		<Card className="border-border">
 			<CardContent className="p-6">
 				<div className="flex items-start justify-between gap-4">
 					<div className="space-y-2">
@@ -55,8 +55,8 @@ export function StatCard({ title, value, trend, trendLabel, icon: Icon }: StatCa
 						)}
 					</div>
 					{Icon && (
-						<div className="rounded-lg bg-muted/80 p-2.5 transition-colors group-hover:bg-accent-color/10">
-							<Icon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-accent-color" />
+						<div className="rounded-lg bg-muted/80 p-2.5">
+							<Icon className="h-5 w-5 text-shadow-muted-foreground" />
 						</div>
 					)}
 				</div>

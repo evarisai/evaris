@@ -122,40 +122,42 @@ function ConfigSidebar({ config }: { config?: EvalConfig }) {
 				<div className="mt-6 space-y-6">
 					{/* Model info */}
 					<div className="space-y-3">
-						<h4 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Model</h4>
-						<div className="p-4 rounded-lg bg-zinc-900/50 border border-zinc-800">
+						<h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+							Model
+						</h4>
+						<div className="p-4 rounded-lg bg-muted/50 border border-border">
 							<div className="flex items-center justify-between mb-3">
-								<span className="text-sm text-zinc-500">Model Name</span>
-								<code className="text-sm font-mono text-foreground bg-zinc-800 px-2 py-0.5 rounded">
+								<span className="text-sm text-muted-foreground">Model Name</span>
+								<code className="text-sm font-mono text-foreground bg-muted px-2 py-0.5 rounded">
 									{config.model}
 								</code>
 							</div>
 							<div className="grid grid-cols-2 gap-3">
-								<div className="p-2 rounded bg-zinc-800/50">
-									<span className="text-xs text-zinc-500 block">Temperature</span>
-									<span className="text-lg font-mono font-semibold text-amber-400">
+								<div className="p-2 rounded bg-muted/50">
+									<span className="text-xs text-muted-foreground block">Temperature</span>
+									<span className="text-lg font-mono font-semibold text-amber-500 dark:text-amber-400">
 										{config.temperature}
 									</span>
 								</div>
 								{config.maxTokens && (
-									<div className="p-2 rounded bg-zinc-800/50">
-										<span className="text-xs text-zinc-500 block">Max Tokens</span>
+									<div className="p-2 rounded bg-muted/50">
+										<span className="text-xs text-muted-foreground block">Max Tokens</span>
 										<span className="text-lg font-mono font-semibold text-blue-400">
 											{config.maxTokens}
 										</span>
 									</div>
 								)}
 								{config.topP !== undefined && (
-									<div className="p-2 rounded bg-zinc-800/50">
-										<span className="text-xs text-zinc-500 block">Top P</span>
-										<span className="text-lg font-mono font-semibold text-purple-400">
+									<div className="p-2 rounded bg-muted/50">
+										<span className="text-xs text-muted-foreground block">Top P</span>
+										<span className="text-lg font-mono font-semibold text-primary">
 											{config.topP}
 										</span>
 									</div>
 								)}
 								{config.frequencyPenalty !== undefined && (
-									<div className="p-2 rounded bg-zinc-800/50">
-										<span className="text-xs text-zinc-500 block">Freq Penalty</span>
+									<div className="p-2 rounded bg-muted/50">
+										<span className="text-xs text-muted-foreground block">Freq Penalty</span>
 										<span className="text-lg font-mono font-semibold text-green-400">
 											{config.frequencyPenalty}
 										</span>
@@ -169,7 +171,7 @@ function ConfigSidebar({ config }: { config?: EvalConfig }) {
 					{config.systemPrompt && (
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h4 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
+								<h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
 									System Prompt
 								</h4>
 								<Button
@@ -185,7 +187,7 @@ function ConfigSidebar({ config }: { config?: EvalConfig }) {
 							<Textarea
 								value={config.systemPrompt}
 								readOnly
-								className="min-h-[120px] font-mono text-xs bg-zinc-900/50 border-zinc-800"
+								className="min-h-[120px] font-mono text-xs bg-muted/50 border-border"
 							/>
 						</div>
 					)}
@@ -193,7 +195,7 @@ function ConfigSidebar({ config }: { config?: EvalConfig }) {
 					{config.prompt && (
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h4 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
+								<h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
 									Prompt Template
 								</h4>
 								<Button
@@ -209,7 +211,7 @@ function ConfigSidebar({ config }: { config?: EvalConfig }) {
 							<Textarea
 								value={config.prompt}
 								readOnly
-								className="min-h-[120px] font-mono text-xs bg-zinc-900/50 border-zinc-800"
+								className="min-h-[120px] font-mono text-xs bg-muted/50 border-border"
 							/>
 						</div>
 					)}
@@ -233,8 +235,8 @@ function MetricScoreCell({ metric }: { metric: MetricScoreData }) {
 						"border transition-all duration-200 cursor-pointer",
 						"hover:scale-105",
 						metric.passed
-							? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-							: "bg-rose-500/10 border-rose-500/30 text-rose-400"
+							? "bg-emerald-500/10 border-emerald-500/30 text-success"
+							: "bg-rose-500/10 border-rose-500/30 text-destructive"
 					)}
 				>
 					{metric.passed ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
@@ -249,11 +251,11 @@ function MetricScoreCell({ metric }: { metric: MetricScoreData }) {
 					<motion.div
 						initial={{ opacity: 0, y: -8 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mt-2 p-2 rounded bg-zinc-900/80 border border-zinc-800 text-xs"
+						className="mt-2 p-2 rounded bg-muted/80 border border-border text-xs"
 					>
 						<div className="flex items-start gap-1.5">
-							<Brain className="w-3.5 h-3.5 text-purple-400 mt-0.5 flex-shrink-0" />
-							<p className="text-zinc-400 leading-relaxed">{metric.reason}</p>
+							<Brain className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
+							<p className="text-muted-foreground leading-relaxed">{metric.reason}</p>
 						</div>
 					</motion.div>
 				</CollapsibleContent>
@@ -279,30 +281,32 @@ function TestResultRow({
 			<TableRow
 				className={cn(
 					"cursor-pointer transition-colors",
-					"hover:bg-zinc-800/50",
-					isExpanded && "bg-zinc-800/30"
+					"hover:bg-muted/50",
+					isExpanded && "bg-muted/30"
 				)}
 				onClick={onToggle}
 			>
 				<TableCell className="w-10">
 					{result.passed ? (
-						<CheckCircle2 className="w-5 h-5 text-emerald-400" />
+						<CheckCircle2 className="w-5 h-5 text-success" />
 					) : (
-						<XCircle className="w-5 h-5 text-rose-400" />
+						<XCircle className="w-5 h-5 text-destructive" />
 					)}
 				</TableCell>
 
 				<TableCell className="max-w-[200px]">
 					<div className="flex items-start gap-2">
-						<MessageSquare className="w-4 h-4 text-zinc-500 mt-0.5 flex-shrink-0" />
-						<span className="text-sm text-zinc-300 line-clamp-2">
+						<MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+						<span className="text-sm text-foreground/80 line-clamp-2">
 							{truncateText(inputText, 80)}
 						</span>
 					</div>
 				</TableCell>
 
 				<TableCell className="max-w-[200px]">
-					<span className="text-sm text-zinc-400 line-clamp-2">{truncateText(outputText, 80)}</span>
+					<span className="text-sm text-muted-foreground line-clamp-2">
+						{truncateText(outputText, 80)}
+					</span>
 				</TableCell>
 
 				<TableCell>
@@ -310,23 +314,26 @@ function TestResultRow({
 						className={cn(
 							"inline-flex items-center px-2 py-1 rounded font-mono text-sm font-semibold",
 							result.overallScore >= 0.8
-								? "bg-emerald-500/10 text-emerald-400"
+								? "bg-success/10 text-success"
 								: result.overallScore >= 0.5
-									? "bg-amber-500/10 text-amber-400"
-									: "bg-rose-500/10 text-rose-400"
+									? "bg-amber-500/10 text-amber-500 dark:text-amber-400"
+									: "bg-destructive/10 text-destructive"
 						)}
 					>
 						{Math.round(result.overallScore * 100)}%
 					</div>
 				</TableCell>
 
-				<TableCell className="font-mono text-sm text-zinc-400">
+				<TableCell className="font-mono text-sm text-muted-foreground">
 					{result.latencyMs.toFixed(0)}ms
 				</TableCell>
 
 				<TableCell className="w-10">
 					<ChevronRight
-						className={cn("w-4 h-4 text-zinc-500 transition-transform", isExpanded && "rotate-90")}
+						className={cn(
+							"w-4 h-4 text-muted-foreground transition-transform",
+							isExpanded && "rotate-90"
+						)}
 					/>
 				</TableCell>
 			</TableRow>
@@ -342,22 +349,22 @@ function TestResultRow({
 								transition={{ duration: 0.2 }}
 								className="overflow-hidden"
 							>
-								<div className="p-4 bg-zinc-900/50 border-y border-zinc-800 space-y-4">
+								<div className="p-4 bg-muted/50 border-y border-border space-y-4">
 									{/* Full input/output/expected */}
 									<div className="grid grid-cols-2 gap-4">
 										<div>
-											<h5 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
+											<h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
 												Input
 											</h5>
-											<pre className="p-3 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 whitespace-pre-wrap max-h-40 overflow-auto">
+											<pre className="p-3 rounded bg-muted border border-border text-xs font-mono text-foreground/80 whitespace-pre-wrap max-h-40 overflow-auto">
 												{inputText}
 											</pre>
 										</div>
 										<div>
-											<h5 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
+											<h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
 												Actual Output
 											</h5>
-											<pre className="p-3 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 whitespace-pre-wrap max-h-40 overflow-auto">
+											<pre className="p-3 rounded bg-muted border border-border text-xs font-mono text-foreground/80 whitespace-pre-wrap max-h-40 overflow-auto">
 												{outputText}
 											</pre>
 										</div>
@@ -365,10 +372,10 @@ function TestResultRow({
 
 									{result.expected && (
 										<div>
-											<h5 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
+											<h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
 												Expected Output
 											</h5>
-											<pre className="p-3 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 whitespace-pre-wrap max-h-40 overflow-auto">
+											<pre className="p-3 rounded bg-muted border border-border text-xs font-mono text-foreground/80 whitespace-pre-wrap max-h-40 overflow-auto">
 												{formatValue(result.expected)}
 											</pre>
 										</div>
@@ -376,10 +383,10 @@ function TestResultRow({
 
 									{result.context && (
 										<div>
-											<h5 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
+											<h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
 												Context (RAG)
 											</h5>
-											<pre className="p-3 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 whitespace-pre-wrap max-h-40 overflow-auto">
+											<pre className="p-3 rounded bg-muted border border-border text-xs font-mono text-foreground/80 whitespace-pre-wrap max-h-40 overflow-auto">
 												{formatValue(result.context)}
 											</pre>
 										</div>
@@ -387,7 +394,7 @@ function TestResultRow({
 
 									{/* Metric details with LLM reasoning */}
 									<div>
-										<h5 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">
+										<h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
 											Metric Scores & LLM Judge Reasoning
 										</h5>
 										<div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
@@ -402,10 +409,12 @@ function TestResultRow({
 													)}
 												>
 													<div className="flex items-center justify-between mb-2">
-														<span className="text-sm font-medium text-zinc-300">{metric.name}</span>
+														<span className="text-sm font-medium text-foreground/80">
+															{metric.name}
+														</span>
 														<MetricScoreCell metric={metric} />
 													</div>
-													<div className="flex items-center gap-2 text-xs text-zinc-500">
+													<div className="flex items-center gap-2 text-xs text-muted-foreground">
 														<span>Threshold: {Math.round(metric.threshold * 100)}%</span>
 													</div>
 												</div>
@@ -479,7 +488,7 @@ export function EvalResultsTable({
 				<div>
 					<h2 className="text-xl font-semibold text-foreground">{evalName}</h2>
 					<div className="flex items-center gap-3 mt-1">
-						<code className="text-xs font-mono text-zinc-500">{evalId}</code>
+						<code className="text-xs font-mono text-muted-foreground">{evalId}</code>
 						{experimentName && (
 							<Badge variant="outline" className="text-xs">
 								{experimentName}
@@ -499,17 +508,17 @@ export function EvalResultsTable({
 			</div>
 
 			<div className="grid grid-cols-4 gap-3">
-				<div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800">
-					<span className="text-xs text-zinc-500 uppercase tracking-wider">Total</span>
+				<div className="p-3 rounded-lg bg-muted/50 border border-border">
+					<span className="text-xs text-muted-foreground uppercase tracking-wider">Total</span>
 					<div className="text-2xl font-mono font-bold text-foreground">{results.length}</div>
 				</div>
 				<div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-					<span className="text-xs text-emerald-400 uppercase tracking-wider">Passed</span>
-					<div className="text-2xl font-mono font-bold text-emerald-400">{passedCount}</div>
+					<span className="text-xs text-success uppercase tracking-wider">Passed</span>
+					<div className="text-2xl font-mono font-bold text-success">{passedCount}</div>
 				</div>
 				<div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20">
-					<span className="text-xs text-rose-400 uppercase tracking-wider">Failed</span>
-					<div className="text-2xl font-mono font-bold text-rose-400">{failedCount}</div>
+					<span className="text-xs text-destructive uppercase tracking-wider">Failed</span>
+					<div className="text-2xl font-mono font-bold text-destructive">{failedCount}</div>
 				</div>
 				<div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
 					<span className="text-xs text-primary uppercase tracking-wider">Avg Score</span>
@@ -525,13 +534,13 @@ export function EvalResultsTable({
 						placeholder="Search inputs/outputs..."
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
-						className="pl-9 bg-zinc-900/50 border-zinc-800"
+						className="pl-9 bg-muted/50 border-border"
 					/>
-					<Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+					<Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
 				</div>
 
 				<Select value={filterPassed} onValueChange={setFilterPassed}>
-					<SelectTrigger className="w-[140px] bg-zinc-900/50 border-zinc-800">
+					<SelectTrigger className="w-[140px] bg-muted/50 border-border">
 						<SelectValue placeholder="Filter" />
 					</SelectTrigger>
 					<SelectContent>
@@ -542,10 +551,10 @@ export function EvalResultsTable({
 				</Select>
 			</div>
 
-			<div className="rounded-lg border border-zinc-800 overflow-hidden">
+			<div className="rounded-lg border border-border overflow-hidden">
 				<Table>
 					<TableHeader>
-						<TableRow className="bg-zinc-900/50 hover:bg-zinc-900/50">
+						<TableRow className="bg-muted/50 hover:bg-muted/50">
 							<TableHead className="w-10">Status</TableHead>
 							<TableHead>Input</TableHead>
 							<TableHead>Output</TableHead>
@@ -562,7 +571,7 @@ export function EvalResultsTable({
 											<ArrowDown className="w-3 h-3" />
 										)
 									) : (
-										<ArrowUpDown className="w-3 h-3 text-zinc-500" />
+										<ArrowUpDown className="w-3 h-3 text-muted-foreground" />
 									)}
 								</div>
 							</TableHead>
@@ -579,7 +588,7 @@ export function EvalResultsTable({
 											<ArrowDown className="w-3 h-3" />
 										)
 									) : (
-										<ArrowUpDown className="w-3 h-3 text-zinc-500" />
+										<ArrowUpDown className="w-3 h-3 text-muted-foreground" />
 									)}
 								</div>
 							</TableHead>
@@ -597,7 +606,7 @@ export function EvalResultsTable({
 						))}
 						{filteredResults.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={6} className="h-32 text-center text-zinc-500">
+								<TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
 									No results found
 								</TableCell>
 							</TableRow>

@@ -79,9 +79,9 @@ const statusConfig = {
 		label: "Violations",
 	},
 	unchecked: {
-		color: "text-zinc-400",
-		bgColor: "bg-zinc-500/10",
-		borderColor: "border-zinc-500/30",
+		color: "text-muted-foreground",
+		bgColor: "bg-muted",
+		borderColor: "border-border",
 		icon: HelpCircle,
 		label: "Unchecked",
 	},
@@ -113,7 +113,7 @@ function ComplianceProgressRing({
 		compliant: "stroke-emerald-500",
 		warning: "stroke-amber-500",
 		violation: "stroke-rose-500",
-		unchecked: "stroke-zinc-500",
+		unchecked: "stroke-muted-foreground",
 	}
 
 	return (
@@ -127,7 +127,7 @@ function ComplianceProgressRing({
 					stroke="currentColor"
 					strokeWidth={strokeWidth}
 					fill="none"
-					className="text-zinc-800"
+					className="text-muted"
 				/>
 				{/* Progress circle */}
 				<motion.circle
@@ -174,9 +174,7 @@ function FrameworkCard({
 			initial={{ opacity: 0, y: 12 }}
 			animate={{ opacity: 1, y: 0 }}
 			className={cn(
-				"relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm p-5",
-				"transition-all duration-300",
-				"hover:bg-card/80 hover:border-zinc-700",
+				"relative overflow-hidden rounded-xl border bg-card/50 backdrop-blur-sm p-5 card-hover cursor-pointer",
 				config.borderColor
 			)}
 		>
@@ -188,8 +186,8 @@ function FrameworkCard({
 						<Icon className={cn("w-5 h-5", config.color)} />
 					</div>
 					<div>
-						<h3 className="font-semibold text-foreground">{framework.name}</h3>
-						<p className="text-xs text-zinc-500">{framework.description}</p>
+						<h3 className="card-title font-semibold text-foreground">{framework.name}</h3>
+						<p className="text-xs text-muted-foreground">{framework.description}</p>
 					</div>
 				</div>
 				<Badge className={cn("text-xs", config.bgColor, config.color, "border-0")}>
@@ -203,8 +201,8 @@ function FrameworkCard({
 
 				<div className="flex-1 space-y-2">
 					<div className="flex items-center justify-between text-sm">
-						<span className="text-zinc-500">Total Rules</span>
-						<span className="font-mono text-zinc-300">{framework.totalRules}</span>
+						<span className="text-muted-foreground">Total Rules</span>
+						<span className="font-mono text-foreground/80">{framework.totalRules}</span>
 					</div>
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-emerald-400">Passed</span>
@@ -226,7 +224,7 @@ function FrameworkCard({
 			</div>
 
 			<div className="mb-4">
-				<div className="flex gap-1 h-2 rounded-full overflow-hidden bg-zinc-800">
+				<div className="flex gap-1 h-2 rounded-full overflow-hidden bg-muted">
 					{framework.passedRules > 0 && (
 						<motion.div
 							initial={{ width: 0 }}
@@ -313,7 +311,7 @@ function OverallComplianceHeader({ frameworks }: { frameworks: ComplianceFramewo
 
 					<div>
 						<h2 className="text-2xl font-bold text-foreground mb-1">Overall Compliance Status</h2>
-						<p className="text-zinc-500">
+						<p className="text-muted-foreground">
 							{overallStatus === "compliant" && "All compliance checks are passing."}
 							{overallStatus === "warning" && "Some checks require attention."}
 							{overallStatus === "violation" && "Critical violations detected."}
@@ -358,7 +356,7 @@ function OverallComplianceHeader({ frameworks }: { frameworks: ComplianceFramewo
 						strokeWidth={8}
 						status={overallStatus}
 					/>
-					<p className="text-xs text-zinc-500 mt-2">
+					<p className="text-xs text-muted-foreground mt-2">
 						{passedRules}/{totalRules} rules passing
 					</p>
 				</div>
@@ -415,10 +413,10 @@ export function ComplianceRuleItem({ rule }: { rule: ComplianceRule }) {
 				)}
 			</div>
 
-			<p className="text-sm text-zinc-500 mb-3">{rule.description}</p>
+			<p className="text-sm text-muted-foreground mb-3">{rule.description}</p>
 
 			{rule.evidence && (
-				<div className="text-xs bg-zinc-900/50 rounded p-2 mb-2 font-mono text-zinc-400">
+				<div className="text-xs bg-muted/50 rounded p-2 mb-2 font-mono text-muted-foreground">
 					{rule.evidence}
 				</div>
 			)}
@@ -437,10 +435,10 @@ export function ComplianceRuleItem({ rule }: { rule: ComplianceRule }) {
 export function ComplianceDashboardSkeleton() {
 	return (
 		<div className="space-y-6 animate-pulse">
-			<div className="h-40 bg-zinc-800 rounded-2xl" />
+			<div className="h-40 bg-muted rounded-2xl" />
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				{[1, 2, 3, 4].map((i) => (
-					<div key={i} className="h-64 bg-zinc-800 rounded-xl" />
+					<div key={i} className="h-64 bg-muted rounded-xl" />
 				))}
 			</div>
 		</div>

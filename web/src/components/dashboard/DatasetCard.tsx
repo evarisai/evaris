@@ -33,17 +33,14 @@ export function DatasetCard({
 }: DatasetCardProps) {
 	return (
 		<Link to="/datasets/$datasetId" params={{ datasetId: id }}>
-			<Card
-				className="hover-elevate cursor-pointer h-full transition-all duration-200 hover:border-primary/30"
-				data-testid={`card-dataset-${id}`}
-			>
+			<Card className="h-full card-hover cursor-pointer" data-testid={`card-dataset-${id}`}>
 				<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
 					<div className="flex items-start gap-3 min-w-0">
-						<div className="rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 p-2.5 shrink-0">
-							<Database className="h-4 w-4 text-violet-600" />
+						<div className="rounded-lg bg-muted p-2.5 shrink-0">
+							<Database className="h-4 w-4 text-shadow-muted-foreground" />
 						</div>
 						<div className="space-y-1 min-w-0">
-							<CardTitle className="text-base truncate">{name}</CardTitle>
+							<CardTitle className="card-title text-base truncate">{name}</CardTitle>
 							<p className="text-sm text-muted-foreground line-clamp-2">
 								{description || "No description"}
 							</p>
