@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { formatDistanceToNow } from "date-fns"
 import { AlertCircle, Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { EvalsTable } from "@/components/dashboard/EvalsTable"
 import {
 	AlertDialog,
@@ -31,6 +31,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { trpc } from "@/lib/trpc"
 
@@ -55,12 +56,9 @@ function Evals() {
 	const [selectedProject, setSelectedProject] = useState("")
 	const [selectedDataset, setSelectedDataset] = useState("")
 	const { toast } = useToast()
+	const utils = trpc.useUtils()
 
-	const {
-		data: evalsData,
-		isLoading: evalsLoading,
-		refetch: refetchEvals,
-	} = trpc.evals.list.useQuery()
+	const { data: evalsData, isLoading: evalsLoading } = trpc.evals.list.useQuery()
 
 	const { data: projects } = trpc.projects.list.useQuery()
 
@@ -69,73 +67,162 @@ function Evals() {
 		{ enabled: !!selectedProject }
 	)
 
-	const createEval = trpc.evals.create.useMutation({
-		onSuccess: () => {
-			toast({
-				title: "Evaluation created",
-				description: `${evalName} has been created successfully.`,
-			})
-			setRunDialogOpen(false)
+	// Reset form when dialogs close
+	useEffect(() => {
+		if (!runDialogOpen) {
 			setEvalName("")
 			setSelectedProject("")
 			setSelectedDataset("")
-			refetchEvals()
+		}
+	}, [runDialogOpen])
+
+	useEffect(() => {
+		if (!editDialogOpen) {
+			setEditingEval(null)
+			setEditEvalName("")
+		}
+	}, [editDialogOpen])
+
+	const createEval = trpc.evals.create.useMutation({
+		onMutate: async (newEval) => {
+			await utils.evals.list.cancel()
+			const previousData = utils.evals.list.getData()
+			const projectName = projects?.find((p) => p.id === newEval.projectId)?.name ?? "Project"
+			const datasetName = datasetsData?.datasets.find((d) => d.id === newEval.datasetId)?.name
+			utils.evals.list.setData(undefined, (old) => {
+				if (!old) return old
+				const optimisticEval = {
+					id: `temp-${Date.now()}`,
+					name: newEval.name,
+					status: "PENDING" as const,
+					total: null,
+					passed: null,
+					failed: null,
+					accuracy: null,
+					summary: null,
+					error: null,
+					metadata: {},
+					progress: 0,
+					startedAt: null,
+					completedAt: null,
+					durationMs: null,
+					totalCost: null,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					organizationId: "",
+					createdById: null,
+					projectId: newEval.projectId,
+					experimentId: null,
+					baselineEvalId: null,
+					datasetId: newEval.datasetId ?? null,
+					project: { name: projectName },
+					dataset: datasetName ? { name: datasetName } : null,
+				}
+				return { ...old, evals: [optimisticEval, ...old.evals], total: old.total + 1 }
+			})
+			return { previousData }
 		},
-		onError: (error) => {
+		onSuccess: (_data, variables) => {
 			toast({
-				title: "Error",
+				title: "Evaluation created",
+				description: `${variables.name} has been created successfully.`,
+			})
+		},
+		onError: (error, _newEval, context) => {
+			if (context?.previousData) {
+				utils.evals.list.setData(undefined, context.previousData)
+			}
+			toast({
+				title: "Failed to create evaluation",
 				description: error.message,
 				variant: "destructive",
 			})
 		},
+		onSettled: () => {
+			utils.evals.list.invalidate()
+		},
 	})
 
 	const updateEval = trpc.evals.update.useMutation({
+		onMutate: async (updatedEval) => {
+			await utils.evals.list.cancel()
+			const previousData = utils.evals.list.getData()
+			utils.evals.list.setData(undefined, (old) => {
+				if (!old) return old
+				return {
+					...old,
+					evals: old.evals.map((e) =>
+						e.id === updatedEval.id ? { ...e, name: updatedEval.name ?? e.name } : e
+					),
+				}
+			})
+			return { previousData }
+		},
 		onSuccess: () => {
 			toast({
 				title: "Evaluation updated",
 				description: "The evaluation has been updated successfully.",
 			})
-			setEditDialogOpen(false)
-			setEditingEval(null)
-			setEditEvalName("")
-			refetchEvals()
 		},
-		onError: (error) => {
+		onError: (error, _updatedEval, context) => {
+			if (context?.previousData) {
+				utils.evals.list.setData(undefined, context.previousData)
+			}
 			toast({
-				title: "Error",
+				title: "Failed to update evaluation",
 				description: error.message,
 				variant: "destructive",
 			})
 		},
+		onSettled: () => {
+			utils.evals.list.invalidate()
+		},
 	})
 
 	const deleteEval = trpc.evals.delete.useMutation({
+		onMutate: async (deletedEval) => {
+			await utils.evals.list.cancel()
+			const previousData = utils.evals.list.getData()
+			utils.evals.list.setData(undefined, (old) => {
+				if (!old) return old
+				return {
+					...old,
+					evals: old.evals.filter((e) => e.id !== deletedEval.id),
+					total: old.total - 1,
+				}
+			})
+			return { previousData }
+		},
 		onSuccess: () => {
 			toast({
 				title: "Evaluation deleted",
 				description: "The evaluation has been deleted.",
 			})
-			setDeleteDialogOpen(false)
-			setDeletingEvalId(null)
-			refetchEvals()
 		},
-		onError: (error) => {
+		onError: (error, _deletedEval, context) => {
+			if (context?.previousData) {
+				utils.evals.list.setData(undefined, context.previousData)
+			}
 			toast({
-				title: "Error",
+				title: "Failed to delete evaluation",
 				description: error.message,
 				variant: "destructive",
 			})
+		},
+		onSettled: () => {
+			utils.evals.list.invalidate()
 		},
 	})
 
 	const handleRunEval = () => {
 		if (evalName && selectedProject && selectedDataset) {
+			// Fire and forget - close dialog immediately
 			createEval.mutate({
 				name: evalName,
 				projectId: selectedProject,
 				datasetId: selectedDataset,
 			})
+			setRunDialogOpen(false)
 		}
 	}
 
@@ -150,7 +237,9 @@ function Evals() {
 
 	const handleEditSubmit = () => {
 		if (editingEval && editEvalName) {
+			// Fire and forget - close dialog immediately
 			updateEval.mutate({ id: editingEval.id, name: editEvalName })
+			setEditDialogOpen(false)
 		}
 	}
 
@@ -161,7 +250,10 @@ function Evals() {
 
 	const handleDeleteConfirm = () => {
 		if (deletingEvalId) {
+			// Fire and forget - close dialog immediately
 			deleteEval.mutate({ id: deletingEvalId })
+			setDeleteDialogOpen(false)
+			setDeletingEvalId(null)
 		}
 	}
 
@@ -181,8 +273,37 @@ function Evals() {
 
 	if (evalsLoading) {
 		return (
-			<div className="flex items-center justify-center py-12">
-				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+			<div className="space-y-6">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div>
+						<h1 className="text-3xl font-semibold">Evaluations</h1>
+						<p className="text-muted-foreground mt-1">View and manage all evaluation runs</p>
+					</div>
+					<Skeleton className="h-10 w-28" />
+				</div>
+				<div className="rounded-lg border">
+					<div className="p-4 border-b">
+						<div className="flex gap-4">
+							<Skeleton className="h-5 w-24" />
+							<Skeleton className="h-5 w-20" />
+							<Skeleton className="h-5 w-16" />
+							<Skeleton className="h-5 w-16" />
+							<Skeleton className="h-5 w-20" />
+						</div>
+					</div>
+					{["a", "b", "c", "d", "e"].map((id) => (
+						<div key={id} className="p-4 border-b last:border-b-0">
+							<div className="flex items-center gap-4">
+								<Skeleton className="h-5 w-40" />
+								<Skeleton className="h-5 w-24" />
+								<Skeleton className="h-5 w-20 rounded-full" />
+								<Skeleton className="h-5 w-16" />
+								<Skeleton className="h-5 w-24" />
+								<Skeleton className="h-8 w-8 ml-auto rounded-md" />
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		)
 	}
@@ -307,10 +428,10 @@ function Evals() {
 						</Button>
 						<Button
 							onClick={handleRunEval}
-							disabled={!evalName || !selectedProject || !selectedDataset || createEval.isPending}
+							disabled={!evalName || !selectedProject || !selectedDataset}
 							data-testid="button-start-eval"
 						>
-							{createEval.isPending ? "Creating..." : "Start Evaluation"}
+							Start Evaluation
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -344,10 +465,10 @@ function Evals() {
 						</Button>
 						<Button
 							onClick={handleEditSubmit}
-							disabled={!editEvalName || editEvalName === editingEval?.name || updateEval.isPending}
+							disabled={!editEvalName || editEvalName === editingEval?.name}
 							data-testid="button-save-edit"
 						>
-							{updateEval.isPending ? "Saving..." : "Save Changes"}
+							Save Changes
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -367,7 +488,7 @@ function Evals() {
 							onClick={handleDeleteConfirm}
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 						>
-							{deleteEval.isPending ? "Deleting..." : "Delete"}
+							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

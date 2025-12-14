@@ -22,7 +22,6 @@ interface EditDialogProps {
 	initialDescription?: string
 	namePlaceholder?: string
 	descriptionPlaceholder?: string
-	isLoading?: boolean
 }
 
 export function EditDialog({
@@ -35,7 +34,6 @@ export function EditDialog({
 	initialDescription = "",
 	namePlaceholder = "Enter name",
 	descriptionPlaceholder = "Enter description",
-	isLoading = false,
 }: EditDialogProps) {
 	const [name, setName] = useState(initialName)
 	const [desc, setDesc] = useState(initialDescription)
@@ -51,7 +49,9 @@ export function EditDialog({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		if (name.trim()) {
+			// Fire and forget: close immediately, let parent handle mutation
 			onSubmit({ name: name.trim(), description: desc.trim() })
+			onOpenChange(false)
 		}
 	}
 
@@ -99,10 +99,10 @@ export function EditDialog({
 						</Button>
 						<Button
 							type="submit"
-							disabled={!name.trim() || !hasChanges || isLoading}
+							disabled={!name.trim() || !hasChanges}
 							data-testid="button-submit-edit"
 						>
-							{isLoading ? "Saving..." : "Save Changes"}
+							Save Changes
 						</Button>
 					</DialogFooter>
 				</form>

@@ -133,7 +133,7 @@ export const logsRouter = router({
 			})
 		}),
 
-	// Get unique sources for filtering
+	// Get unique sources for filtering (limited to prevent unbounded queries)
 	getSources: organizationProcedure.query(async ({ ctx }) => {
 		const sources = await ctx.prisma.log.findMany({
 			select: { source: true },
@@ -141,11 +141,12 @@ export const logsRouter = router({
 			where: {
 				organizationId: ctx.activeOrganization.id,
 			},
+			take: 100,
 		})
 		return sources.map((s) => s.source)
 	}),
 
-	// Get unique agent IDs for filtering
+	// Get unique agent IDs for filtering (limited to prevent unbounded queries)
 	getAgentIds: organizationProcedure.query(async ({ ctx }) => {
 		const agents = await ctx.prisma.log.findMany({
 			select: { agentId: true },
@@ -154,34 +155,45 @@ export const logsRouter = router({
 				agentId: { not: null },
 				organizationId: ctx.activeOrganization.id,
 			},
+			take: 100,
 		})
 		return agents.map((a) => a.agentId).filter(Boolean) as string[]
 	}),
 
-	// Get log stats
+	// Get log stats - optimized to use groupBy for single DB query
 	getStats: organizationProcedure.query(async ({ ctx }) => {
 		const orgFilter = {
 			organizationId: ctx.activeOrganization.id,
 		}
 
-		const [total, errors, warnings] = await Promise.all([
-			ctx.prisma.log.count({ where: orgFilter }),
-			ctx.prisma.log.count({
-				where: { ...orgFilter, level: { in: ["ERROR", "CRITICAL"] } },
+		// Use groupBy to get all level counts in a single query
+		const [levelCounts, uniqueAgents] = await Promise.all([
+			ctx.prisma.log.groupBy({
+				by: ["level"],
+				where: orgFilter,
+				_count: { level: true },
 			}),
-			ctx.prisma.log.count({ where: { ...orgFilter, level: "WARNING" } }),
+			ctx.prisma.log.findMany({
+				select: { agentId: true },
+				distinct: ["agentId"],
+				where: { ...orgFilter, agentId: { not: null } },
+				take: 1000,
+			}),
 		])
 
-		const uniqueAgents = await ctx.prisma.log.findMany({
-			select: { agentId: true },
-			distinct: ["agentId"],
-			where: { ...orgFilter, agentId: { not: null } },
-		})
+		// Convert groupBy results to level counts
+		const counts = levelCounts.reduce(
+			(acc, item) => {
+				acc[item.level] = item._count.level
+				return acc
+			},
+			{ DEBUG: 0, INFO: 0, WARNING: 0, ERROR: 0, CRITICAL: 0 } as Record<string, number>
+		)
 
 		return {
-			total,
-			errors,
-			warnings,
+			total: Object.values(counts).reduce((a, b) => a + b, 0),
+			errors: counts.ERROR + counts.CRITICAL,
+			warnings: counts.WARNING,
 			activeAgents: uniqueAgents.length,
 		}
 	}),

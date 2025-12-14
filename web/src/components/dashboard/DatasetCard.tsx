@@ -41,7 +41,7 @@ export function DatasetCard({
 						</div>
 						<div className="space-y-1 min-w-0">
 							<CardTitle className="card-title text-base truncate">{name}</CardTitle>
-							<p className="text-sm text-muted-foreground line-clamp-2">
+							<p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
 								{description || "No description"}
 							</p>
 						</div>

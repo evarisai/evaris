@@ -56,7 +56,6 @@ function ProjectDetail() {
 	const updateProjectMutation = trpc.projects.update.useMutation({
 		onSuccess: () => {
 			refetch()
-			setEditOpen(false)
 			toast({
 				title: "Project updated",
 				description: "Your changes have been saved.",
@@ -64,7 +63,7 @@ function ProjectDetail() {
 		},
 		onError: (error) => {
 			toast({
-				title: "Error",
+				title: "Failed to update project",
 				description: error.message,
 				variant: "destructive",
 			})
@@ -408,7 +407,6 @@ function ProjectDetail() {
 				initialDescription={project.description ?? ""}
 				namePlaceholder="My Project"
 				descriptionPlaceholder="Describe your project..."
-				isLoading={updateProjectMutation.isPending}
 			/>
 
 			<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

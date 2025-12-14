@@ -6,6 +6,7 @@ import { EditDialog } from "@/components/dashboard/EditDialog"
 import { ProjectCard } from "@/components/dashboard/ProjectCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { trpc } from "@/lib/trpc"
 
@@ -25,21 +26,92 @@ function Projects() {
 	const [editingProject, setEditingProject] = useState<EditingProject | null>(null)
 	const { toast } = useToast()
 	const navigate = useNavigate()
+	const utils = trpc.useUtils()
 
-	const { data: projectsData, isLoading, refetch } = trpc.projects.list.useQuery()
+	const { data: projectsData, isLoading } = trpc.projects.list.useQuery()
+
 	const createProjectMutation = trpc.projects.create.useMutation({
-		onSuccess: () => {
-			refetch()
+		onMutate: async (newProject) => {
+			// Cancel outgoing refetches
+			await utils.projects.list.cancel()
+			// Snapshot the previous value
+			const previousProjects = utils.projects.list.getData()
+			// Optimistically add new project
+			utils.projects.list.setData(undefined, (old) => {
+				if (!old) return old
+				const optimisticProject = {
+					id: `temp-${Date.now()}`,
+					name: newProject.name,
+					description: newProject.description ?? null,
+					organizationId: "",
+					createdById: null,
+					modes: ["EVALS" as const],
+					settings: {},
+					createdAt: new Date(),
+					updatedAt: new Date(),
+					_count: { evals: 0, datasets: 0 },
+				}
+				return [optimisticProject, ...old]
+			})
+			return { previousProjects }
+		},
+		onError: (_err, _newProject, context) => {
+			// Roll back on error
+			if (context?.previousProjects) {
+				utils.projects.list.setData(undefined, context.previousProjects)
+			}
+		},
+		onSettled: () => {
+			// Refetch to get server state
+			utils.projects.list.invalidate()
 		},
 	})
+
 	const updateProjectMutation = trpc.projects.update.useMutation({
-		onSuccess: () => {
-			refetch()
+		onMutate: async (updatedProject) => {
+			await utils.projects.list.cancel()
+			const previousProjects = utils.projects.list.getData()
+			utils.projects.list.setData(undefined, (old) => {
+				if (!old) return old
+				return old.map((p) =>
+					p.id === updatedProject.id
+						? {
+								...p,
+								name: updatedProject.name ?? p.name,
+								description: updatedProject.description ?? p.description,
+							}
+						: p
+				)
+			})
+			return { previousProjects }
+		},
+		onError: (_err, _updatedProject, context) => {
+			if (context?.previousProjects) {
+				utils.projects.list.setData(undefined, context.previousProjects)
+			}
+		},
+		onSettled: () => {
+			utils.projects.list.invalidate()
 		},
 	})
+
 	const deleteProjectMutation = trpc.projects.delete.useMutation({
-		onSuccess: () => {
-			refetch()
+		onMutate: async (deletedProject) => {
+			await utils.projects.list.cancel()
+			const previousProjects = utils.projects.list.getData()
+			utils.projects.list.setData(undefined, (old) => {
+				if (!old) return old
+				return old.filter((p) => p.id !== deletedProject.id)
+			})
+			return { previousProjects }
+		},
+		onError: (_err, _deletedProject, context) => {
+			if (context?.previousProjects) {
+				utils.projects.list.setData(undefined, context.previousProjects)
+			}
+		},
+		onSettled: () => {
+			utils.projects.list.invalidate()
 		},
 	})
 
@@ -52,17 +124,18 @@ function Projects() {
 	)
 
 	const handleCreate = (data: { name: string; description: string }) => {
+		// Fire and forget - dialog closes immediately via CreateDialog
+		// Toast notifications provide feedback
 		createProjectMutation.mutate(data, {
 			onSuccess: () => {
 				toast({
 					title: "Project created",
 					description: `${data.name} has been created successfully.`,
 				})
-				setCreateOpen(false)
 			},
 			onError: (error) => {
 				toast({
-					title: "Error",
+					title: "Failed to create project",
 					description: error.message,
 					variant: "destructive",
 				})
@@ -104,19 +177,20 @@ function Projects() {
 
 	const handleEditSubmit = (data: { name: string; description: string }) => {
 		if (!editingProject) return
+		const projectId = editingProject.id
+		// Fire and forget - dialog closes immediately via EditDialog
 		updateProjectMutation.mutate(
-			{ id: editingProject.id, ...data },
+			{ id: projectId, ...data },
 			{
 				onSuccess: () => {
 					toast({
 						title: "Project updated",
 						description: `${data.name} has been updated successfully.`,
 					})
-					setEditingProject(null)
 				},
 				onError: (error) => {
 					toast({
-						title: "Error",
+						title: "Failed to update project",
 						description: error.message,
 						variant: "destructive",
 					})
@@ -154,11 +228,22 @@ function Projects() {
 			</div>
 
 			{isLoading ? (
-				<div className="flex flex-col items-center justify-center py-16 text-center">
-					<div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4 animate-pulse">
-						<Search className="h-8 w-8 text-muted-foreground/50" />
-					</div>
-					<p className="text-muted-foreground">Loading projects...</p>
+				<div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+					{["a", "b", "c", "d", "e", "f"].map((id) => (
+						<div key={id} className="rounded-xl border bg-card p-5 space-y-4">
+							<div className="flex items-start justify-between">
+								<div className="space-y-2 flex-1">
+									<Skeleton className="h-5 w-32" />
+									<Skeleton className="h-4 w-48" />
+								</div>
+								<Skeleton className="h-8 w-8 rounded-md" />
+							</div>
+							<div className="flex gap-4">
+								<Skeleton className="h-4 w-20" />
+								<Skeleton className="h-4 w-24" />
+							</div>
+						</div>
+					))}
 				</div>
 			) : filteredProjects.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
@@ -220,7 +305,6 @@ function Projects() {
 				initialDescription={editingProject?.description ?? ""}
 				namePlaceholder="My Project"
 				descriptionPlaceholder="Describe your project..."
-				isLoading={updateProjectMutation.isPending}
 			/>
 		</div>
 	)

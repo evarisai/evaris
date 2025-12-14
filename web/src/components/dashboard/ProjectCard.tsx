@@ -36,17 +36,20 @@ export function ProjectCard({
 	onDelete,
 }: ProjectCardProps) {
 	return (
-		<Link to="/projects/$projectId" params={{ projectId: id }} className="block">
-			<Card className="group card-hover cursor-pointer" data-testid={`card-project-${id}`}>
-				<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+		<Link to="/projects/$projectId" params={{ projectId: id }} className="block h-full">
+			<Card
+				className="group card-hover cursor-pointer h-full flex flex-col"
+				data-testid={`card-project-${id}`}
+			>
+				<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3 flex-1">
 					<div className="flex items-start gap-3 min-w-0">
 						<div className="rounded-lg bg-muted p-2.5 shrink-0">
 							<FolderKanban className="h-4 w-4 text-shadow-muted-foreground" />
 						</div>
 						<div className="space-y-1.5 min-w-0">
 							<CardTitle className="card-title text-base font-semibold truncate">{name}</CardTitle>
-							<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-								{description}
+							<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed min-h-[2.5rem]">
+								{description || "No description"}
 							</p>
 						</div>
 					</div>

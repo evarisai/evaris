@@ -331,6 +331,7 @@ model Project {
 
   @@index([organizationId])
   @@index([createdById])
+  @@index([organizationId, createdAt])
 }
 
 // Datasets for evaluation
@@ -354,6 +355,8 @@ model Dataset {
 
   @@index([organizationId])
   @@index([projectId])
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
 }
 
 model DatasetFile {
@@ -487,6 +490,9 @@ model Eval {
   @@index([datasetId])
   @@index([status])
   @@index([baselineEvalId])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
 }
 
 // Individual test case results
@@ -525,6 +531,7 @@ model TestResult {
 
   @@index([evalId])
   @@index([passed])
+  @@index([evalId, passed])
 }
 
 // Individual metric scores for queryable filtering (extracted from TestResult.scores)
@@ -663,6 +670,10 @@ model Trace {
   @@index([userId])
   @@index([environment])
   @@index([tags])
+  @@index([organizationId, startTime])
+  @@index([organizationId, status, startTime])
+  @@index([projectId, startTime])
+  @@index([traceSessionId, startTime])
 }
 
 enum TraceStatus {
@@ -769,6 +780,9 @@ model Log {
   @@index([level])
   @@index([source])
   @@index([timestamp])
+  @@index([organizationId, timestamp])
+  @@index([organizationId, level, timestamp])
+  @@index([evalId, timestamp])
 }
 
 enum LogLevel {

@@ -250,26 +250,37 @@ export const evalsRouter = router({
 			})
 		}),
 
-	// Get stats for dashboard
+	// Get stats for dashboard - optimized to use groupBy for single DB query
 	getStats: organizationProcedure.query(async ({ ctx }) => {
 		const where = { organizationId: ctx.activeOrganization.id }
-		const [total, passed, failed, running] = await Promise.all([
-			ctx.prisma.eval.count({ where }),
-			ctx.prisma.eval.count({ where: { ...where, status: "PASSED" } }),
-			ctx.prisma.eval.count({ where: { ...where, status: "FAILED" } }),
-			ctx.prisma.eval.count({ where: { ...where, status: "RUNNING" } }),
+
+		// Use groupBy to get all status counts in a single query
+		const [statusCounts, avgAccuracy] = await Promise.all([
+			ctx.prisma.eval.groupBy({
+				by: ["status"],
+				where,
+				_count: { status: true },
+			}),
+			ctx.prisma.eval.aggregate({
+				_avg: { accuracy: true },
+				where: { ...where, accuracy: { not: null } },
+			}),
 		])
 
-		const avgAccuracy = await ctx.prisma.eval.aggregate({
-			_avg: { accuracy: true },
-			where: { ...where, accuracy: { not: null } },
-		})
+		// Convert groupBy results to status counts
+		const counts = statusCounts.reduce(
+			(acc, item) => {
+				acc[item.status] = item._count.status
+				return acc
+			},
+			{ PENDING: 0, RUNNING: 0, PASSED: 0, FAILED: 0 } as Record<string, number>
+		)
 
 		return {
-			total,
-			passed,
-			failed,
-			running,
+			total: Object.values(counts).reduce((a, b) => a + b, 0),
+			passed: counts.PASSED,
+			failed: counts.FAILED,
+			running: counts.RUNNING,
 			avgAccuracy: avgAccuracy._avg.accuracy ?? 0,
 		}
 	}),

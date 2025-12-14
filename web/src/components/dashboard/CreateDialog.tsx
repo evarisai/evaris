@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
 	Dialog,
@@ -34,12 +34,19 @@ export function CreateDialog({
 	const [name, setName] = useState("")
 	const [desc, setDesc] = useState("")
 
+	// Reset form when dialog closes
+	useEffect(() => {
+		if (!open) {
+			setName("")
+			setDesc("")
+		}
+	}, [open])
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		if (name.trim()) {
+			// Fire and forget: close immediately, let parent handle mutation
 			onSubmit({ name: name.trim(), description: desc.trim() })
-			setName("")
-			setDesc("")
 			onOpenChange(false)
 		}
 	}

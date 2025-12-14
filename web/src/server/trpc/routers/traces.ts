@@ -155,7 +155,7 @@ export const tracesRouter = router({
 			})
 		}),
 
-	// Get unique service names for filtering
+	// Get unique service names for filtering (limited to prevent unbounded queries)
 	getServices: organizationProcedure.query(async ({ ctx }) => {
 		const services = await ctx.prisma.trace.findMany({
 			select: { serviceName: true },
@@ -163,31 +163,43 @@ export const tracesRouter = router({
 			where: {
 				organizationId: ctx.activeOrganization.id,
 			},
+			take: 100,
 		})
 		return services.map((s) => s.serviceName)
 	}),
 
-	// Get trace stats
+	// Get trace stats - optimized to use groupBy for single DB query
 	getStats: organizationProcedure.query(async ({ ctx }) => {
 		const orgFilter = {
 			organizationId: ctx.activeOrganization.id,
 		}
 
-		const [total, successful, errors] = await Promise.all([
-			ctx.prisma.trace.count({ where: orgFilter }),
-			ctx.prisma.trace.count({ where: { ...orgFilter, status: "OK" } }),
-			ctx.prisma.trace.count({ where: { ...orgFilter, status: "ERROR" } }),
+		// Use groupBy to get all status counts in a single query
+		const [statusCounts, avgDuration] = await Promise.all([
+			ctx.prisma.trace.groupBy({
+				by: ["status"],
+				where: orgFilter,
+				_count: { status: true },
+			}),
+			ctx.prisma.trace.aggregate({
+				_avg: { duration: true },
+				where: orgFilter,
+			}),
 		])
 
-		const avgDuration = await ctx.prisma.trace.aggregate({
-			_avg: { duration: true },
-			where: orgFilter,
-		})
+		// Convert groupBy results to status counts
+		const counts = statusCounts.reduce(
+			(acc, item) => {
+				acc[item.status] = item._count.status
+				return acc
+			},
+			{ OK: 0, ERROR: 0, UNSET: 0 } as Record<string, number>
+		)
 
 		return {
-			total,
-			successful,
-			errors,
+			total: Object.values(counts).reduce((a, b) => a + b, 0),
+			successful: counts.OK,
+			errors: counts.ERROR,
 			avgDuration: avgDuration._avg.duration ?? 0,
 		}
 	}),

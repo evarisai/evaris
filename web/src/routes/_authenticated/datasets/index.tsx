@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { formatDistanceToNow } from "date-fns"
 import { AlertCircle, Plus, Search } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DatasetCard } from "@/components/dashboard/DatasetCard"
 import { EditDialog } from "@/components/dashboard/EditDialog"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { trpc } from "@/lib/trpc"
@@ -44,29 +45,35 @@ function Datasets() {
 	const [datasetDescription, setDatasetDescription] = useState("")
 	const [selectedProject, setSelectedProject] = useState("")
 	const { toast } = useToast()
+	const utils = trpc.useUtils()
 
 	// Fetch datasets from the API
-	const { data: datasetsData, isLoading, refetch } = trpc.datasets.list.useQuery()
+	const { data: datasetsData, isLoading } = trpc.datasets.list.useQuery()
 
 	// Fetch projects for the create dialog
 	const { data: projects } = trpc.projects.list.useQuery()
 
-	// Create dataset mutation
-	const createDataset = trpc.datasets.create.useMutation({
-		onSuccess: () => {
-			toast({
-				title: "Dataset created",
-				description: `${datasetName} has been created successfully.`,
-			})
-			setCreateOpen(false)
+	// Reset form when dialog closes
+	useEffect(() => {
+		if (!createOpen) {
 			setDatasetName("")
 			setDatasetDescription("")
 			setSelectedProject("")
-			refetch()
+		}
+	}, [createOpen])
+
+	// Create dataset mutation - fire and forget
+	const createDataset = trpc.datasets.create.useMutation({
+		onSuccess: (_data, variables) => {
+			toast({
+				title: "Dataset created",
+				description: `${variables.name} has been created successfully.`,
+			})
+			utils.datasets.list.invalidate()
 		},
 		onError: (error) => {
 			toast({
-				title: "Error",
+				title: "Failed to create dataset",
 				description: error.message,
 				variant: "destructive",
 			})
@@ -76,7 +83,7 @@ function Datasets() {
 	// Update dataset mutation
 	const updateDataset = trpc.datasets.update.useMutation({
 		onSuccess: () => {
-			refetch()
+			utils.datasets.list.invalidate()
 		},
 	})
 
@@ -87,7 +94,7 @@ function Datasets() {
 				title: "Dataset deleted",
 				description: "The dataset has been removed.",
 			})
-			refetch()
+			utils.datasets.list.invalidate()
 		},
 		onError: (error) => {
 			toast({
@@ -100,11 +107,13 @@ function Datasets() {
 
 	const handleCreate = () => {
 		if (datasetName && selectedProject) {
+			// Fire and forget - close dialog immediately
 			createDataset.mutate({
 				name: datasetName,
 				description: datasetDescription || undefined,
 				projectId: selectedProject,
 			})
+			setCreateOpen(false)
 		}
 	}
 
@@ -125,19 +134,20 @@ function Datasets() {
 
 	const handleEditSubmit = (data: { name: string; description: string }) => {
 		if (!editingDataset) return
+		const datasetId = editingDataset.id
+		// Fire and forget - dialog closes immediately via EditDialog
 		updateDataset.mutate(
-			{ id: editingDataset.id, ...data },
+			{ id: datasetId, ...data },
 			{
 				onSuccess: () => {
 					toast({
 						title: "Dataset updated",
 						description: `${data.name} has been updated successfully.`,
 					})
-					setEditingDataset(null)
 				},
 				onError: (error) => {
 					toast({
-						title: "Error",
+						title: "Failed to update dataset",
 						description: error.message,
 						variant: "destructive",
 					})
@@ -156,8 +166,32 @@ function Datasets() {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-12">
-				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+			<div className="space-y-6">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div>
+						<h1 className="text-3xl font-semibold">Datasets</h1>
+						<p className="text-muted-foreground mt-1">Manage your test datasets</p>
+					</div>
+					<Skeleton className="h-10 w-32" />
+				</div>
+				<Skeleton className="h-10 w-64" />
+				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+					{["a", "b", "c", "d", "e", "f"].map((id) => (
+						<div key={id} className="rounded-xl border bg-card p-5 space-y-4">
+							<div className="flex items-start justify-between">
+								<div className="space-y-2 flex-1">
+									<Skeleton className="h-5 w-28" />
+									<Skeleton className="h-4 w-40" />
+								</div>
+								<Skeleton className="h-8 w-8 rounded-md" />
+							</div>
+							<div className="flex gap-4">
+								<Skeleton className="h-4 w-16" />
+								<Skeleton className="h-4 w-20" />
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		)
 	}
@@ -269,11 +303,8 @@ function Datasets() {
 						<Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
 							Cancel
 						</Button>
-						<Button
-							onClick={handleCreate}
-							disabled={!datasetName || !selectedProject || createDataset.isPending}
-						>
-							{createDataset.isPending ? "Creating..." : "Create Dataset"}
+						<Button onClick={handleCreate} disabled={!datasetName || !selectedProject}>
+							Create Dataset
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -289,7 +320,6 @@ function Datasets() {
 				initialDescription={editingDataset?.description ?? ""}
 				namePlaceholder="My Dataset"
 				descriptionPlaceholder="Describe your dataset..."
-				isLoading={updateDataset.isPending}
 			/>
 		</div>
 	)
