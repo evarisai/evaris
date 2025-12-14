@@ -221,7 +221,7 @@ function ProjectDetail() {
 									data-testid="button-copy-project-id"
 								>
 									{copied ? (
-										<Check className="h-4 w-4 text-accent-color" />
+										<Check className="h-4 w-4 text-primary" />
 									) : (
 										<Copy className="h-4 w-4" />
 									)}
@@ -248,8 +248,8 @@ function ProjectDetail() {
 								<p className="text-sm text-muted-foreground">Evaluations</p>
 								<p className="text-2xl font-semibold mt-1">{evalCount}</p>
 							</div>
-							<div className="h-10 w-10 rounded-lg bg-accent-color/10 flex items-center justify-center">
-								<BarChart3 className="h-5 w-5 text-accent-color" />
+							<div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+								<BarChart3 className="h-5 w-5 text-primary" />
 							</div>
 						</div>
 					</CardContent>
@@ -350,7 +350,7 @@ function ProjectDetail() {
 											variant={evalItem.status === "PASSED" ? "default" : "secondary"}
 											className={
 												evalItem.status === "PASSED"
-													? "bg-accent-color/10 text-accent-color border-accent-color/20"
+													? "bg-primary/10 text-primary border-primary/20"
 													: ""
 											}
 										>
@@ -383,15 +383,15 @@ function ProjectDetail() {
 								{"\n\n"}
 								client = EvarisClient(
 								{"\n"}
-								{"    "}api_key=<span className="text-accent-color">"ev_..."</span>,{"\n"}
-								{"    "}project_id=<span className="text-accent-color">"{projectId}"</span>
+								{"    "}api_key=<span className="text-primary">"ev_..."</span>,{"\n"}
+								{"    "}project_id=<span className="text-primary">"{projectId}"</span>
 								{"\n"}){"\n\n"}
 								result = <span className="text-foreground/70">await</span> client.assess(
 								{"\n"}
-								{"    "}name=<span className="text-accent-color">"my-eval"</span>,{"\n"}
+								{"    "}name=<span className="text-primary">"my-eval"</span>,{"\n"}
 								{"    "}test_cases=[...],{"\n"}
-								{"    "}metrics=[<span className="text-accent-color">"faithfulness"</span>,{" "}
-								<span className="text-accent-color">"answer_relevancy"</span>]{"\n"})
+								{"    "}metrics=[<span className="text-primary">"faithfulness"</span>,{" "}
+								<span className="text-primary">"answer_relevancy"</span>]{"\n"})
 							</code>
 						</pre>
 					</div>

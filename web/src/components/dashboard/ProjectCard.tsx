@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { MoreHorizontal, Pencil, Play, Settings, Trash2 } from "lucide-react"
+import { FolderKanban, MoreHorizontal, Pencil, Play, Settings, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -37,18 +37,18 @@ export function ProjectCard({
 }: ProjectCardProps) {
 	return (
 		<Link to="/projects/$projectId" params={{ projectId: id }} className="block">
-			<Card
-				className="group cursor-pointer border-card-border transition-all duration-300 hover:shadow-md hover:border-border"
-				data-testid={`card-project-${id}`}
-			>
+			<Card className="group card-hover cursor-pointer" data-testid={`card-project-${id}`}>
 				<CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
-					<div className="space-y-1.5 min-w-0">
-						<CardTitle className="text-base font-semibold truncate group-hover:text-accent-color transition-colors">
-							{name}
-						</CardTitle>
-						<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-							{description}
-						</p>
+					<div className="flex items-start gap-3 min-w-0">
+						<div className="rounded-lg bg-muted p-2.5 shrink-0">
+							<FolderKanban className="h-4 w-4 text-shadow-muted-foreground" />
+						</div>
+						<div className="space-y-1.5 min-w-0">
+							<CardTitle className="card-title text-base font-semibold truncate">{name}</CardTitle>
+							<p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+								{description}
+							</p>
+						</div>
 					</div>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>

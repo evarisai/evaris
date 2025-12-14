@@ -43,42 +43,42 @@ function ChartContent({ data, showAccuracy }: { data: DataPoint[]; showAccuracy?
 			<AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
 				<defs>
 					<linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-						<stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
-						<stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+						<stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+						<stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
 					</linearGradient>
 					<linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
-						<stop offset="5%" stopColor="hsl(var(--chart-4))" stopOpacity={0.3} />
-						<stop offset="95%" stopColor="hsl(var(--chart-4))" stopOpacity={0} />
+						<stop offset="5%" stopColor="var(--chart-4)" stopOpacity={0.3} />
+						<stop offset="95%" stopColor="var(--chart-4)" stopOpacity={0} />
 					</linearGradient>
 				</defs>
-				<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+				<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
 				<XAxis
 					dataKey="date"
 					axisLine={false}
 					tickLine={false}
-					tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+					tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
 					dy={10}
 				/>
 				<YAxis
 					axisLine={false}
 					tickLine={false}
-					tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+					tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
 					dx={-10}
 					domain={[0, 100]}
 				/>
 				<Tooltip
 					contentStyle={{
-						backgroundColor: "hsl(var(--popover))",
-						border: "1px solid hsl(var(--border))",
+						backgroundColor: "var(--popover)",
+						border: "1px solid var(--border)",
 						borderRadius: "8px",
 						fontSize: "12px",
 					}}
-					labelStyle={{ color: "hsl(var(--foreground))" }}
+					labelStyle={{ color: "var(--foreground)" }}
 				/>
 				<Area
 					type="monotone"
 					dataKey="score"
-					stroke="hsl(var(--chart-1))"
+					stroke="var(--chart-1)"
 					strokeWidth={2}
 					fill="url(#scoreGradient)"
 					name="Score"
@@ -87,7 +87,7 @@ function ChartContent({ data, showAccuracy }: { data: DataPoint[]; showAccuracy?
 					<Area
 						type="monotone"
 						dataKey="accuracy"
-						stroke="hsl(var(--chart-4))"
+						stroke="var(--chart-4)"
 						strokeWidth={2}
 						fill="url(#accuracyGradient)"
 						name="Accuracy"

@@ -120,8 +120,8 @@ function ResetPasswordPage() {
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border))_1px,transparent_0)] [background-size:40px_40px] opacity-40" />
-			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-accent-color/5 to-transparent rounded-full blur-3xl" />
+			<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--border)_1px,transparent_0)] [background-size:40px_40px] opacity-40" />
+			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-primary/5 to-transparent rounded-full blur-3xl" />
 
 			<div className="w-full max-w-md space-y-8 relative z-10 animate-fade-in-up">
 				<div className="flex flex-col items-center space-y-3 text-center">

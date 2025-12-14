@@ -50,15 +50,15 @@ const statusConfig = {
 	pending: {
 		icon: Clock,
 		label: "Pending",
-		color: "text-zinc-400",
-		bgColor: "bg-zinc-500/10",
-		borderColor: "border-zinc-500/30",
-		glowColor: "shadow-zinc-500/5",
+		color: "text-muted-foreground",
+		bgColor: "bg-muted",
+		borderColor: "border-border",
+		glowColor: "shadow-muted/20",
 	},
 	running: {
 		icon: Loader2,
 		label: "Running",
-		color: "text-amber-400",
+		color: "text-amber-500 dark:text-amber-400",
 		bgColor: "bg-amber-500/10",
 		borderColor: "border-amber-500/30",
 		glowColor: "shadow-amber-500/10",
@@ -66,18 +66,18 @@ const statusConfig = {
 	passed: {
 		icon: CheckCircle2,
 		label: "Passed",
-		color: "text-emerald-400",
-		bgColor: "bg-emerald-500/10",
-		borderColor: "border-emerald-500/30",
-		glowColor: "shadow-emerald-500/10",
+		color: "text-success",
+		bgColor: "bg-success/10",
+		borderColor: "border-success/30",
+		glowColor: "shadow-success/10",
 	},
 	failed: {
 		icon: XCircle,
 		label: "Failed",
-		color: "text-rose-400",
-		bgColor: "bg-rose-500/10",
-		borderColor: "border-rose-500/30",
-		glowColor: "shadow-rose-500/10",
+		color: "text-destructive",
+		bgColor: "bg-destructive/10",
+		borderColor: "border-destructive/30",
+		glowColor: "shadow-destructive/10",
 	},
 }
 
@@ -89,11 +89,13 @@ function MetricPill({ metric }: { metric: EvalMetric }) {
 				"inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono",
 				"border transition-all duration-200",
 				metric.passed
-					? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
-					: "bg-rose-500/5 border-rose-500/20 text-rose-400"
+					? "bg-success/5 border-success/20 text-success"
+					: "bg-destructive/5 border-destructive/20 text-destructive"
 			)}
 		>
-			<span className="text-zinc-500 text-[10px] uppercase tracking-wider">{metric.name}</span>
+			<span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+				{metric.name}
+			</span>
 			<span className="font-semibold">{scorePercent}%</span>
 			{metric.passed ? <CheckCircle2 className="w-3 h-3" /> : <AlertTriangle className="w-3 h-3" />}
 		</div>
@@ -134,9 +136,7 @@ export function EvalRunCard({
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: -8 }}
 			className={cn(
-				"group relative rounded-lg border bg-card/50 backdrop-blur-sm",
-				"transition-all duration-300 ease-out",
-				"hover:bg-card/80",
+				"group relative rounded-lg border bg-card backdrop-blur-sm card-hover cursor-pointer",
 				config.borderColor,
 				isExpanded && "ring-1 ring-primary/20"
 			)}
@@ -170,9 +170,11 @@ export function EvalRunCard({
 						</div>
 
 						<div className="min-w-0 flex-1">
-							<h3 className="font-semibold text-foreground truncate">{data.name}</h3>
+							<h3 className="card-title font-semibold text-foreground truncate">{data.name}</h3>
 							<div className="flex items-center gap-2 mt-0.5">
-								<code className="text-xs font-mono text-zinc-500">{data.id.slice(0, 12)}</code>
+								<code className="text-xs font-mono text-muted-foreground">
+									{data.id.slice(0, 12)}
+								</code>
 								{data.experimentName && (
 									<Badge variant="outline" className="text-[10px] px-1.5 py-0">
 										{data.experimentName}
@@ -190,7 +192,7 @@ export function EvalRunCard({
 					<motion.div
 						animate={{ rotate: isExpanded ? 180 : 0 }}
 						transition={{ duration: 0.2 }}
-						className="text-zinc-500"
+						className="text-muted-foreground"
 					>
 						<ChevronDown className="w-5 h-5" />
 					</motion.div>
@@ -199,10 +201,10 @@ export function EvalRunCard({
 				{isRunning && (
 					<div className="mb-3">
 						<div className="flex items-center justify-between text-xs mb-1.5">
-							<span className="text-zinc-500">Progress</span>
-							<span className="font-mono text-amber-400">{data.progress}%</span>
+							<span className="text-muted-foreground">Progress</span>
+							<span className="font-mono text-amber-500 dark:text-amber-400">{data.progress}%</span>
 						</div>
-						<div className="relative h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+						<div className="relative h-1.5 rounded-full bg-muted overflow-hidden">
 							<motion.div
 								className="absolute inset-y-0 left-0 bg-gradient-to-r from-amber-500 to-amber-400 rounded-full"
 								initial={{ width: 0 }}
@@ -219,51 +221,53 @@ export function EvalRunCard({
 				)}
 
 				<div className="grid grid-cols-4 gap-3 mb-3">
-					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
-						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+					<div className="text-center p-2 rounded-md bg-muted/50 border border-border">
+						<div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
 							Accuracy
 						</div>
 						<div
 							className={cn(
 								"text-lg font-mono font-bold tabular-nums",
 								accuracyPercent !== null && accuracyPercent >= 80
-									? "text-emerald-400"
+									? "text-success"
 									: accuracyPercent !== null && accuracyPercent >= 60
-										? "text-amber-400"
+										? "text-amber-500 dark:text-amber-400"
 										: accuracyPercent !== null
-											? "text-rose-400"
-											: "text-zinc-500"
+											? "text-destructive"
+											: "text-muted-foreground"
 							)}
 						>
 							{accuracyPercent !== null ? `${accuracyPercent}%` : "--"}
 						</div>
 					</div>
 
-					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
-						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+					<div className="text-center p-2 rounded-md bg-muted/50 border border-border">
+						<div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
 							Pass Rate
 						</div>
 						<div className="text-lg font-mono font-bold tabular-nums">
-							<span className="text-emerald-400">{data.passed}</span>
-							<span className="text-zinc-600">/</span>
-							<span className="text-zinc-400">{data.total}</span>
+							<span className="text-success">{data.passed}</span>
+							<span className="text-muted-foreground/50">/</span>
+							<span className="text-foreground/70">{data.total}</span>
 						</div>
 					</div>
 
-					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
-						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">
+					<div className="text-center p-2 rounded-md bg-muted/50 border border-border">
+						<div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
 							Duration
 						</div>
-						<div className="text-lg font-mono font-bold tabular-nums text-zinc-300 flex items-center justify-center gap-1">
-							<Clock className="w-3.5 h-3.5 text-zinc-500" />
+						<div className="text-lg font-mono font-bold tabular-nums text-foreground/80 flex items-center justify-center gap-1">
+							<Clock className="w-3.5 h-3.5 text-muted-foreground" />
 							{formatDuration(data.durationMs)}
 						</div>
 					</div>
 
-					<div className="text-center p-2 rounded-md bg-zinc-900/50 border border-zinc-800">
-						<div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-0.5">Cost</div>
-						<div className="text-lg font-mono font-bold tabular-nums text-zinc-300 flex items-center justify-center gap-1">
-							<DollarSign className="w-3.5 h-3.5 text-zinc-500" />
+					<div className="text-center p-2 rounded-md bg-muted/50 border border-border">
+						<div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
+							Cost
+						</div>
+						<div className="text-lg font-mono font-bold tabular-nums text-foreground/80 flex items-center justify-center gap-1">
+							<DollarSign className="w-3.5 h-3.5 text-muted-foreground" />
 							{formatCost(data.cost)}
 						</div>
 					</div>
@@ -275,7 +279,7 @@ export function EvalRunCard({
 							<MetricPill key={metric.name} metric={metric} />
 						))}
 						{data.metrics.length > 5 && (
-							<span className="text-xs text-zinc-500 self-center">
+							<span className="text-xs text-muted-foreground self-center">
 								+{data.metrics.length - 5} more
 							</span>
 						)}
@@ -292,7 +296,7 @@ export function EvalRunCard({
 						transition={{ duration: 0.3, ease: "easeInOut" }}
 						className="overflow-hidden"
 					>
-						<div className="px-4 pb-4 border-t border-zinc-800 pt-4">
+						<div className="px-4 pb-4 border-t border-border pt-4">
 							<div className="flex items-center gap-2 mb-4">
 								<Button
 									size="sm"
@@ -322,22 +326,22 @@ export function EvalRunCard({
 
 							{data.metrics.length > 0 && (
 								<div className="space-y-2">
-									<h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+									<h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
 										Metric Details
 									</h4>
 									<div className="grid grid-cols-2 gap-2">
 										{data.metrics.map((metric) => (
 											<div
 												key={metric.name}
-												className="flex items-center justify-between p-2 rounded bg-zinc-900/50 border border-zinc-800"
+												className="flex items-center justify-between p-2 rounded bg-muted/50 border border-border"
 											>
-												<span className="text-sm text-zinc-400">{metric.name}</span>
+												<span className="text-sm text-muted-foreground">{metric.name}</span>
 												<div className="flex items-center gap-2">
-													<div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+													<div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
 														<div
 															className={cn(
 																"h-full rounded-full transition-all",
-																metric.passed ? "bg-emerald-500" : "bg-rose-500"
+																metric.passed ? "bg-success" : "bg-destructive"
 															)}
 															style={{ width: `${metric.score * 100}%` }}
 														/>
@@ -345,7 +349,7 @@ export function EvalRunCard({
 													<span
 														className={cn(
 															"text-sm font-mono font-semibold",
-															metric.passed ? "text-emerald-400" : "text-rose-400"
+															metric.passed ? "text-success" : "text-destructive"
 														)}
 													>
 														{Math.round(metric.score * 100)}%
@@ -366,22 +370,22 @@ export function EvalRunCard({
 
 export function EvalRunCardSkeleton() {
 	return (
-		<div className="rounded-lg border border-zinc-800 bg-card/50 p-4 animate-pulse">
+		<div className="rounded-lg border border-border bg-card p-4 animate-pulse">
 			<div className="flex items-start gap-3 mb-3">
-				<div className="w-8 h-8 rounded-md bg-zinc-800" />
+				<div className="w-8 h-8 rounded-md bg-muted" />
 				<div className="flex-1">
-					<div className="h-5 w-40 bg-zinc-800 rounded mb-1.5" />
-					<div className="h-3 w-24 bg-zinc-800 rounded" />
+					<div className="h-5 w-40 bg-muted rounded mb-1.5" />
+					<div className="h-3 w-24 bg-muted rounded" />
 				</div>
 			</div>
 			<div className="grid grid-cols-4 gap-3 mb-3">
 				{[1, 2, 3, 4].map((i) => (
-					<div key={i} className="h-16 bg-zinc-800 rounded-md" />
+					<div key={i} className="h-16 bg-muted rounded-md" />
 				))}
 			</div>
 			<div className="flex gap-1.5">
 				{[1, 2, 3].map((i) => (
-					<div key={i} className="h-6 w-20 bg-zinc-800 rounded" />
+					<div key={i} className="h-6 w-20 bg-muted rounded" />
 				))}
 			</div>
 		</div>

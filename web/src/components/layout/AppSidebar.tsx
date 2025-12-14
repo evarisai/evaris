@@ -26,7 +26,6 @@ import {
 	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -80,9 +79,6 @@ export function AppSidebar() {
 
 			<SidebarContent className="px-2">
 				<SidebarGroup>
-					<SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/70 font-semibold px-3 mb-1">
-						Navigation
-					</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu className="space-y-0.5">
 							{menuItems.map((item, index) => {
@@ -108,7 +104,7 @@ export function AppSidebar() {
 												/>
 												<span className="text-sm">{item.title}</span>
 												{isActive && (
-													<span className="absolute right-2 w-1.5 h-1.5 rounded-full bg-accent-color animate-scale-in" />
+													<span className="absolute right-2 w-1.5 h-1.5 rounded-full bg-primary animate-scale-in" />
 												)}
 											</Link>
 										</SidebarMenuButton>

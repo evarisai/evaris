@@ -18,10 +18,10 @@ import { requestPasswordReset } from "@/lib/auth-client"
 function AnimatedMailIcon() {
 	return (
 		<div className="relative">
-			<div className="absolute inset-0 bg-accent-color/20 rounded-full blur-xl animate-pulse" />
-			<div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-accent-color/10 to-accent-color/5 border border-accent-color/20 flex items-center justify-center animate-scale-in">
+			<div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+			<div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center animate-scale-in">
 				<Mail
-					className="w-8 h-8 text-accent-color animate-fade-in"
+					className="w-8 h-8 text-primary animate-fade-in"
 					style={{ animationDelay: "200ms" }}
 				/>
 				<div
@@ -112,8 +112,8 @@ function ForgotPasswordPage() {
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border))_1px,transparent_0)] [background-size:40px_40px] opacity-40" />
-			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-accent-color/5 to-transparent rounded-full blur-3xl" />
+			<div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,var(--border)_1px,transparent_0)] [background-size:40px_40px] opacity-40" />
+			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-primary/5 to-transparent rounded-full blur-3xl" />
 
 			<div className="w-full max-w-md space-y-8 relative z-10 animate-fade-in-up">
 				<div className="flex flex-col items-center space-y-3 text-center">
