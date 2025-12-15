@@ -14,3 +14,5 @@ dist
 src/routeTree.gen.ts
 app.config.timestamp_*.js
 
+storybook-static
+
