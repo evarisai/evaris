@@ -13,6 +13,7 @@ from evaris.agent_interface import (
 )
 from evaris.baselines import BaselineConfig, BaselineManager
 from evaris.metrics.exact_match import ExactMatchMetric
+from evaris.metrics.rag.context_entity_recall import ContextEntityRecallMetric
 from evaris.tracing import get_debug_logger, get_tracer
 from evaris.types import (
     AgentFunction,
@@ -33,6 +34,7 @@ from evaris.types import (
 BUILTIN_METRICS: dict[str, Callable[[], Any]] = {
     "exact_match": lambda: ExactMatchMetric(),
     "latency": lambda: LatencyMetric(),
+    "context_entity_recall": lambda: ContextEntityRecallMetric(),
 }
 
 

@@ -17,6 +17,10 @@ from pydantic import BaseModel, Field
 from evaris.core.protocols import BaseMetric
 from evaris.core.types import MetricResult, TestCase
 from evaris.metrics.rag.answer_relevancy import AnswerRelevancyConfig, AnswerRelevancyMetric
+from evaris.metrics.rag.context_entity_recall import (
+    ContextEntityRecallConfig,
+    ContextEntityRecallMetric,
+)
 from evaris.metrics.rag.context_precision import ContextPrecisionConfig, ContextPrecisionMetric
 from evaris.metrics.rag.context_recall import ContextRecallConfig, ContextRecallMetric
 from evaris.providers.base import BaseLLMProvider
@@ -67,6 +71,10 @@ class RAGASConfig(BaseModel):
         default=True,
         description="Include Context Recall in composite score",
     )
+    include_context_entity_recall: bool = Field(
+        default=False,
+        description="Include Context Entity Recall in composite score (optional)",
+    )
 
 
 class RAGASMetric(BaseMetric):
@@ -80,6 +88,7 @@ class RAGASMetric(BaseMetric):
     - Faithfulness: Is the answer faithful to the context?
     - Context Precision: Are relevant contexts ranked higher?
     - Context Recall: Are all relevant facts in the context?
+    - Context Entity Recall (optional): Are all entities in the context?
 
     Required:
     - input (query)
@@ -120,6 +129,14 @@ class RAGASMetric(BaseMetric):
                 temperature=self.config.temperature,
             )
         )
+        self._context_entity_recall = ContextEntityRecallMetric(
+            config=ContextEntityRecallConfig(
+                provider=self.config.provider,
+                model=self.config.model,
+                context_key=self.config.context_key,
+                temperature=self.config.temperature,
+            )
+        )
 
     def _get_provider(self) -> Any:
         """Get or create the LLM provider for faithfulness."""
@@ -140,7 +157,10 @@ class RAGASMetric(BaseMetric):
 
         context_key = self.config.context_key
         if not test_case.metadata or context_key not in test_case.metadata:
-            raise ValueError(f"RAGAS metric requires '{context_key}' in metadata")
+            raise ValueError(
+                f"RAGAS metric requires '{
+                             context_key}' in metadata"
+            )
 
     async def _measure_faithfulness(
         self,
@@ -242,6 +262,16 @@ Your response:"""
                 scores.append(cr_result.score)
             except Exception:
                 component_scores["context_recall"] = 0.0
+                scores.append(0.0)
+
+        # Context Entity Recall (optional)
+        if self.config.include_context_entity_recall:
+            try:
+                cer_result = await self._context_entity_recall.a_measure(test_case, output_str)
+                component_scores["context_entity_recall"] = cer_result.score
+                scores.append(cer_result.score)
+            except Exception:
+                component_scores["context_entity_recall"] = 0.0
                 scores.append(0.0)
 
         # Calculate average

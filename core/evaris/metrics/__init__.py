@@ -13,6 +13,7 @@ RAG Metrics (evaris.metrics.rag):
 - AnswerRelevancyMetric: Response relevance to query
 - ContextPrecisionMetric: Retrieval precision
 - ContextRecallMetric: Retrieval recall
+- ContextEntityRecallMetric: Entity-level retrieval recall
 - ContextualRelevancyMetric: Context-to-query relevance
 - RAGASMetric: Composite RAG evaluation
 
@@ -146,6 +147,8 @@ from evaris.metrics.quality import (
 from evaris.metrics.rag import (
     AnswerRelevancyConfig,
     AnswerRelevancyMetric,
+    ContextEntityRecallConfig,
+    ContextEntityRecallMetric,
     ContextPrecisionConfig,
     ContextPrecisionMetric,
     ContextRecallConfig,
@@ -194,6 +197,8 @@ __all__ = [
     # RAG metrics
     "AnswerRelevancyMetric",
     "AnswerRelevancyConfig",
+    "ContextEntityRecallMetric",
+    "ContextEntityRecallConfig",
     "ContextPrecisionMetric",
     "ContextPrecisionConfig",
     "ContextRecallMetric",

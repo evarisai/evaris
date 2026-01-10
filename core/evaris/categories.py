@@ -45,6 +45,8 @@ def _register_metrics() -> None:
         BLEUConfig,
         # NLP metrics
         BLEUMetric,
+        ContextEntityRecallConfig,
+        ContextEntityRecallMetric,
         ContextPrecisionConfig,
         ContextPrecisionMetric,
         ContextRecallConfig,
@@ -117,6 +119,7 @@ def _register_metrics() -> None:
             # RAG metrics
             "faithfulness": (FaithfulnessMetric, FaithfulnessConfig),
             "answer_relevancy": (AnswerRelevancyMetric, AnswerRelevancyConfig),
+            "context_entity_recall": (ContextEntityRecallMetric, ContextEntityRecallConfig),
             "context_precision": (ContextPrecisionMetric, ContextPrecisionConfig),
             "context_recall": (ContextRecallMetric, ContextRecallConfig),
             "contextual_relevancy": (ContextualRelevancyMetric, ContextualRelevancyConfig),
