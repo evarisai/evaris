@@ -1,7 +1,7 @@
 """E2E test fixtures and configuration.
 
 This module provides fixtures for end-to-end testing of the full Evaris
-stack: Python SDK -> evaris-server -> PostgreSQL (Supabase).
+stack: Python SDK -> evaris-server -> PostgreSQL.
 
 Fixtures handle:
 - Service availability checks (skip tests if services unavailable)
@@ -24,13 +24,17 @@ EVARIS_API_URL = os.environ.get("EVARIS_API_URL", "http://localhost:8081")
 EVARIS_TEST_API_KEY = os.environ.get("EVARIS_TEST_API_KEY", "test_e2e_api_key")
 
 # JWT configuration for internal auth (matches evaris-server/.env.test)
-INTERNAL_JWT_SECRET = os.environ.get("INTERNAL_JWT_SECRET", "test-secret-for-testing-only")
+INTERNAL_JWT_SECRET = os.environ.get(
+    "INTERNAL_JWT_SECRET", "test-secret-for-testing-only")
 INTERNAL_JWT_ALGORITHM = os.environ.get("INTERNAL_JWT_ALGORITHM", "HS256")
 
 # Test tenant identifiers - read from environment (set in evaris-server/.env)
-TEST_ORGANIZATION_ID = os.environ.get("TEST_ORGANIZATION_ID", "cmiql8v0e0001erfq78jce2yk")
-TEST_PROJECT_ID = os.environ.get("TEST_PROJECT_ID", "cmiqlbo7e0005erfq7htyf6t1")
-TEST_USER_ID = os.environ.get("TEST_USER_ID", "wuTuX0pdrF3ICICxiP7lIZhadfhUjYek")
+TEST_ORGANIZATION_ID = os.environ.get(
+    "TEST_ORGANIZATION_ID", "cmiql8v0e0001erfq78jce2yk")
+TEST_PROJECT_ID = os.environ.get(
+    "TEST_PROJECT_ID", "cmiqlbo7e0005erfq7htyf6t1")
+TEST_USER_ID = os.environ.get(
+    "TEST_USER_ID", "wuTuX0pdrF3ICICxiP7lIZhadfhUjYek")
 
 
 def _is_port_open(host: str, port: int, timeout: float = 1.0) -> bool:
@@ -316,4 +320,5 @@ def cleanup_assessments(evaris_client) -> Generator[list[str]]:
     # Cleanup logic would go here if the API supports deletion
     # For now, we just track what was created
     if assessment_ids:
-        print(f"\nCreated {len(assessment_ids)} assessments during test: {assessment_ids}")
+        print(f"\nCreated {len(assessment_ids)
+                           } assessments during test: {assessment_ids}")

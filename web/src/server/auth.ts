@@ -365,6 +365,7 @@ export const auth = betterAuth({
 	trustedOrigins: [
 		process.env.BETTER_AUTH_URL || "http://localhost:5173",
 		"http://localhost:3000", // TanStack Start dev server
+		process.env.BACKEND_API_URL || "http://localhost:4000", // Hono backend
 	],
 	// Database hooks for user lifecycle events
 	databaseHooks: {

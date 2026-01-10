@@ -9,7 +9,7 @@ An AI evaluation platform for testing and benchmarking LLM agents, built with a 
 | **Frontend** | React, TanStack Start, TanStack Router, Tailwind CSS, shadcn/ui |
 | **API (BFF)** | tRPC, better-auth |
 | **Backend** | Hono, BullMQ, Redis |
-| **Database** | PostgreSQL (Supabase), Prisma ORM |
+| **Database** | PostgreSQL, Prisma ORM |
 | **Deployment** | Vercel (frontend), Railway/Render (backend) |
 
 ---
@@ -62,8 +62,8 @@ An AI evaluation platform for testing and benchmarking LLM agents, built with a 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           SHARED INFRASTRUCTURE                              │
 │  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
-│  │  Prisma + Supabase  │  │       Redis         │  │    LLM Providers    │  │
-│  │  (PostgreSQL)       │  │   (Job Queues)      │  │  OpenAI/Anthropic   │  │
+│  │     PostgreSQL      │  │       Redis         │  │    LLM Providers    │  │
+│  │   (Prisma ORM)      │  │   (Job Queues)      │  │  OpenAI/Anthropic   │  │
 │  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -227,7 +227,7 @@ User clicks "Run Evaluation"
 - Node.js >= 22
 - pnpm >= 9
 - Docker (for Redis)
-- Supabase account (or local PostgreSQL)
+- PostgreSQL database (Neon, Railway, or local)
 
 ### 1. Clone and Install
 
@@ -239,29 +239,18 @@ pnpm install
 
 ### 2. Environment Setup
 
+Use the centralized env management:
+
 ```bash
-# Root .env.local
-cp .env.example .env.local
+# Copy the example config
+cp env/config.example.json env/config.local.json
 
-# Backend .env
-cp packages/backend/.env.example packages/backend/.env
+# Edit with your values
+# Then generate all .env files:
+make env-local
 ```
 
-Configure the following variables:
-
-```env
-# Database (Supabase)
-DATABASE_URL=postgresql://...
-
-# Authentication
-BETTER_AUTH_SECRET=your-secret-key
-
-# Backend API URL (for tRPC to call Hono)
-BACKEND_API_URL=http://localhost:4000
-
-# Redis (for job queues)
-REDIS_URL=redis://localhost:6379
-```
+See `env/config.example.json` for all available options.
 
 ### 3. Database Setup
 
@@ -370,7 +359,7 @@ docker-compose up -d --scale worker=3
 
 | Service | Provider Options |
 |---------|-----------------|
-| **Database** | Supabase, Neon, Railway Postgres |
+| **Database** | Neon, Railway Postgres, local PostgreSQL |
 | **Redis** | Upstash, Railway Redis, Redis Cloud |
 | **Backend Hosting** | Railway, Render, Fly.io, AWS ECS |
 

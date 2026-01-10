@@ -147,7 +147,7 @@ datasetsRoutes.post("/:id/upload", async (c) => {
 						? "JSONL"
 						: "JSONL"
 
-		// Upload to Supabase Storage
+		// Upload to storage
 		const { fileSize, filePath } = await uploadDatasetFile(dataset.organizationId, dataset.id, file)
 
 		// Create DatasetFile record

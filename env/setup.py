@@ -34,7 +34,7 @@ REQUIRED_KEYS = {
 
 ENV_TARGETS = {
     "web/.env": {
-        "sections": ["shared", "web", "web_backend"],
+        "sections": ["shared", "web"],
         "public_section": "web.public",
         "public_prefix": "VITE_PUBLIC_",
     },
