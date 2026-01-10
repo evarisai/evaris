@@ -5,7 +5,8 @@
         lint lint-python lint-web \
         typecheck typecheck-python typecheck-web \
         check db-generate db-push db-migrate db-studio \
-        install install-web install-python clean help
+        install install-web install-python clean help \
+        env-local env-staging env-prod env-check env-clean
 
 # Development
 dev: dev-all
@@ -113,6 +114,22 @@ install-python:
 	cd core && uv venv && uv pip install -e ".[dev]"
 	cd server && uv venv && uv pip install -e ../core && uv pip install -e ".[dev]"
 
+# Environment Setup (generates .env files from env/config.{env}.json)
+env-local:
+	@python3 env/setup.py local
+
+env-staging:
+	@python3 env/setup.py staging
+
+env-prod:
+	@python3 env/setup.py prod
+
+env-check:
+	@python3 env/setup.py --check local
+
+env-clean:
+	@python3 env/setup.py --clean
+
 # Cleanup
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
@@ -145,6 +162,13 @@ help:
 	@echo "    make db-push      - Push schema to database"
 	@echo "    make db-migrate   - Run database migrations"
 	@echo "    make db-studio    - Open Prisma Studio"
+	@echo ""
+	@echo "  Environment:"
+	@echo "    make env-local    - Generate .env from config.local.json"
+	@echo "    make env-staging  - Generate .env from config.staging.json"
+	@echo "    make env-prod     - Generate .env from config.prod.json"
+	@echo "    make env-check    - Validate config.local.json"
+	@echo "    make env-clean    - Remove generated .env files"
 	@echo ""
 	@echo "  Cleanup:"
 	@echo "    make clean        - Remove build artifacts"

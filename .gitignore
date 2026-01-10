@@ -20,6 +20,9 @@ build/
 .env
 .env.local
 .env.*.local
+env/config.local.json
+env/config.staging.json
+env/config.prod.json
 
 # Prisma
 prisma/client/
